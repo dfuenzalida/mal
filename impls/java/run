@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Always compile everything
+# javac src/mal/*.java -d bin
+
+# Run
+exec java -cp $(dirname $0)/bin mal.${STEP:-stepA_mal} "${@}"
+
+# Test with:
+# STEP=demo ./run
