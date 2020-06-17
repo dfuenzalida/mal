@@ -132,8 +132,8 @@ public class reader {
 				if (c == '\\') {
 					builder.append('\\');
 					escaping = false;
-				} else if (c == 'b') { // TODO: \n \f \r \t
-					builder.append('\b');
+				} else if (c == 'n') { // TODO: \b \f \r \t
+					builder.append('\n');
 					escaping = false;
 				} else if (c == '\"') {
 					builder.append('\"');
