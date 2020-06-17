@@ -19,6 +19,7 @@ public class reader {
 
 	List<String> tokens;
 	Integer position;
+	static types malTypes = new types();
 	
 	public reader(List<String> tokens) {
 		this.tokens = tokens;
@@ -26,9 +27,7 @@ public class reader {
 	}
 	
 	public String next() {
-		String current = this.peek();
-		position++;
-		return current;
+		return tokens.get(position++);
 	}
 
 	public String peek() {
@@ -36,10 +35,6 @@ public class reader {
 	}
 
 	public static types.MalType read_str(String input) {
-		// This function will call tokenize and then
-		// create a new Reader object instance with the tokens.
-		// Then it will call read_form with the Reader instance.
-		
 		List<String> tokens = tokenize(input);
 		reader myReader = new reader(tokens);
 		return read_form(myReader);
@@ -66,7 +61,7 @@ public class reader {
 		String token = myReader.next();
 		if (token.matches("\\d+")) {
 			Integer value = Integer.parseInt(token);
-			return new types().new MalInteger(value);
+			return malTypes.new MalInteger(value);
 		} else if (token.startsWith("\"") || token.endsWith("\"")) {
 				// A String is a token with quotes "
 				
@@ -80,24 +75,25 @@ public class reader {
 				}
 
 				String unescaped = unescape(token.substring(1, token.length() - 1));
-				return new types().new MalString(unescaped);
-
+				return malTypes.new MalString(unescaped);
 		} else if (QUOTE_TOKENS_MAP.containsKey(token)) {
 			// The following form needs to be wrapped on a list with the substitution from the quoteTokens map
 			String substitution = QUOTE_TOKENS_MAP.get(token);
-			MalType symbol = new types().new MalSymbol(substitution);
+			MalType symbol = malTypes.new MalSymbol(substitution);
 			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(symbol, expr));
+			MalList list = malTypes.new MalList(Arrays.asList(symbol, expr));
 			return list;
 		} else if ("^".equals(token)) {
 			// metadata on an expr - the next 2 forms are: metadata and value
-			MalType withMeta = new types().new MalSymbol("with-meta");
+			MalType withMeta = malTypes.new MalSymbol("with-meta");
 			MalType metadata = read_form(myReader);
 			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(withMeta, expr, metadata));
+			MalList list = malTypes.new MalList(Arrays.asList(withMeta, expr, metadata));
 			return list;
+		} else if ("nil".equals(token)) {
+			return types.MalNil;
 		} else {
-			return new types().new MalSymbol(token);
+			return malTypes.new MalSymbol(token);
 		}
 	}
 	
@@ -153,7 +149,7 @@ public class reader {
 		}
 		myReader.next(); // consume the closing token
 
-		return new types().new MalList(items, openToken, closeToken);
+		return malTypes.new MalList(items, openToken, closeToken);
 	}
 
 }

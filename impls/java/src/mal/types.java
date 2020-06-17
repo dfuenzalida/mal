@@ -10,6 +10,12 @@ public class types {
 
 	public class MalType { }
 
+	public static MalType MalNil = new types().new MalType() {
+		public String toString() {
+			return "nil";
+		}
+	};
+
 	public class MalList extends MalType {
 		public List<MalType> items;
 		public String open;
