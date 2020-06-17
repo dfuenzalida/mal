@@ -1,0 +1,3 @@
+module malJava {
+	exports mal;
+}
