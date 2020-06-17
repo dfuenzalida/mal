@@ -1,9 +1,12 @@
 package mal;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class types {
+
+	static Map<Character, String> ESCAPE_CHARS = Map.of('\\', "\\\\", '\n', "\\n", '\r', "\\r", '\t', "\\t", '"', "\\\"");
 
 	public class MalType { }
 
@@ -49,8 +52,12 @@ public class types {
 		}
 
 		public String toString() {
-			String escaped = value.replace("\"", "\\\"");
-			return String.format("\"%s\"", escaped);
+			StringBuilder builder = new StringBuilder();
+			for (int i=0; i < value.length(); i++) {
+				char c = value.charAt(i);
+				builder.append( ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
+			}
+			return String.format("\"%s\"", builder.toString());
 		}
 	}
 

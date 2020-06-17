@@ -79,10 +79,9 @@ public class reader {
 					throw new RuntimeException("Unbalanced quotes");
 				}
 
-				// Just to check properly escaped tokens for now
 				String unescaped = unescape(token.substring(1, token.length() - 1));
+				return new types().new MalString(unescaped);
 
-				return new types().new MalSymbol(token);
 		} else if (QUOTE_TOKENS_MAP.containsKey(token)) {
 			// The following form needs to be wrapped on a list with the substitution from the quoteTokens map
 			String substitution = QUOTE_TOKENS_MAP.get(token);
