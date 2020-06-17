@@ -92,6 +92,10 @@ public class reader {
 			return list;
 		} else if ("nil".equals(token)) {
 			return types.MalNil;
+		} else if ("true".equals(token)) {
+			return types.MalTrue;
+		} else if ("false".equals(token)) {
+			return types.MalFalse;
 		} else {
 			return malTypes.new MalSymbol(token);
 		}

@@ -61,7 +61,7 @@ public class types {
 			StringBuilder builder = new StringBuilder();
 			for (int i=0; i < value.length(); i++) {
 				char c = value.charAt(i);
-				builder.append( ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
+				builder.append(ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
 			}
 			return String.format("\"%s\"", builder.toString());
 		}
@@ -77,5 +77,19 @@ public class types {
 			return name.toString();
 		}
 	}
+
+	public class MalBoolean extends MalType {
+		public boolean value;
+		MalBoolean(boolean value) {
+			this.value = value;
+		}
+
+		public String toString() {
+			return value ? "true":"false";
+		}
+	}
+
+	public static MalBoolean MalTrue  = new types().new MalBoolean(true);
+	public static MalBoolean MalFalse = new types().new MalBoolean(false);
 }
 
