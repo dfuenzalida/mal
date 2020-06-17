@@ -167,7 +167,7 @@ public class reader {
 		}
 		myReader.next(); // consume the closing token
 
-		return new types().new MalList(items);
+		return new types().new MalList(items, openToken, closeToken);
 	}
 
 //	public static void main(String[] args) {

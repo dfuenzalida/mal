@@ -9,15 +9,25 @@ public class types {
 
 	public class MalList extends MalType {
 		public List<MalType> items;
+		public String open;
+		public String close;
 	
 		public MalList(List<MalType> items) {
 			this.items = items;
+			this.open = "(";
+			this.close = ")";
 		}
-		
+
+		public MalList(List<MalType> items, String open, String close) {
+			this.items = items;
+			this.open = open;
+			this.close = close;
+		}
+
 		public String toString() {
 			List<String> strItems = items.stream().map(i -> i.toString()).collect(Collectors.toList());
 			String joined = String.join(" ", strItems);
-			return String.format("(%s)", joined);
+			return String.format("%s%s%s", open, joined, close);
 		}
 	}
 	
