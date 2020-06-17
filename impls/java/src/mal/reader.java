@@ -86,6 +86,24 @@ public class reader {
 			MalType quote = new types().new MalSymbol("quote");
 			MalList list = new types().new MalList(Arrays.asList(quote, expr));
 			return list;
+		} else if ("`".equals(token)) {
+			// quasiquoted expr - the next form in the reader is quoted
+			MalType expr = read_form(myReader);
+			MalType quote = new types().new MalSymbol("quasiquote");
+			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			return list;
+		} else if ("~".equals(token)) {
+			// unquote expr - the next form in the reader is quoted
+			MalType expr = read_form(myReader);
+			MalType quote = new types().new MalSymbol("unquote");
+			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			return list;
+		} else if ("~@".equals(token)) {
+			// splice unquote expr - the next form in the reader is quoted
+			MalType expr = read_form(myReader);
+			MalType quote = new types().new MalSymbol("splice-unquote");
+			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			return list;
 		} else {
 			return new types().new MalSymbol(token);
 		}
