@@ -96,6 +96,9 @@ public class reader {
 			return types.MalTrue;
 		} else if ("false".equals(token)) {
 			return types.MalFalse;
+		} else if (token.startsWith(":")) {
+			if (token.length() < 2) throw new RuntimeException("Invalid keyword name");
+			return malTypes.new MalKeyword(token.substring(1));
 		} else {
 			return malTypes.new MalSymbol(token);
 		}

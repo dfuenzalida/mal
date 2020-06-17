@@ -67,6 +67,17 @@ public class types {
 		}
 	}
 
+	public class MalKeyword extends MalType {
+		public String name;
+		public MalKeyword(String name) {
+			this.name = name;
+		}
+
+		public String toString() {
+			return String.format(":%s", name.toString());
+		}
+	}
+
 	public class MalSymbol extends MalType {
 		public String name;
 		public MalSymbol(String name) {
