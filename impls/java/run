@@ -4,7 +4,7 @@
 # javac src/mal/*.java -d bin
 
 # Run
-exec rlwrap java -cp $(dirname $0)/bin mal.${STEP:-stepA_mal} "${@}"
+exec java -cp $(dirname $0)/bin mal.${STEP:-stepA_mal} "${@}"
 
 # Test with:
 # STEP=demo ./run
