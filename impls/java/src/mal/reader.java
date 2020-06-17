@@ -82,33 +82,40 @@ public class reader {
 				return new types().new MalSymbol(token);
 		} else if ("'".equals(token)) {
 			// quoted expr - the next form in the reader is quoted
-			MalType expr = read_form(myReader);
 			MalType quote = new types().new MalSymbol("quote");
+			MalType expr = read_form(myReader);
 			MalList list = new types().new MalList(Arrays.asList(quote, expr));
 			return list;
 		} else if ("`".equals(token)) {
-			// quasiquoted expr - the next form in the reader is quoted
+			// quasiquoted expr - the next form in the reader is quasiquoted
+			MalType quasi = new types().new MalSymbol("quasiquote");
 			MalType expr = read_form(myReader);
-			MalType quote = new types().new MalSymbol("quasiquote");
-			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			MalList list = new types().new MalList(Arrays.asList(quasi, expr));
 			return list;
 		} else if ("~".equals(token)) {
-			// unquote expr - the next form in the reader is quoted
+			// unquote expr - the next form in the reader is unquoted
+			MalType unquote = new types().new MalSymbol("unquote");
 			MalType expr = read_form(myReader);
-			MalType quote = new types().new MalSymbol("unquote");
-			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			MalList list = new types().new MalList(Arrays.asList(unquote, expr));
 			return list;
 		} else if ("~@".equals(token)) {
-			// splice unquote expr - the next form in the reader is quoted
+			// splice unquote expr - the next form in the reader is splice-unquoted
+			MalType spliceUnquote = new types().new MalSymbol("splice-unquote");
 			MalType expr = read_form(myReader);
-			MalType quote = new types().new MalSymbol("splice-unquote");
-			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			MalList list = new types().new MalList(Arrays.asList(spliceUnquote, expr));
 			return list;
 		} else if ("@".equals(token)) {
-			// deref expr - the next form in the reader is quoted
+			// deref expr - the next form in the reader is dereferenced
+			MalType deref = new types().new MalSymbol("deref");
 			MalType expr = read_form(myReader);
-			MalType quote = new types().new MalSymbol("deref");
-			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			MalList list = new types().new MalList(Arrays.asList(deref, expr));
+			return list;
+		} else if ("^".equals(token)) {
+			// metadata on an expr - the next 2 forms are metadata and value
+			MalType withMeta = new types().new MalSymbol("with-meta");
+			MalType metadata = read_form(myReader);
+			MalType expr = read_form(myReader);
+			MalList list = new types().new MalList(Arrays.asList(withMeta, expr, metadata));
 			return list;
 		} else {
 			return new types().new MalSymbol(token);
