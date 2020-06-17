@@ -3,6 +3,7 @@ package mal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,9 @@ import mal.types.MalType;
 public class reader {
 	
 	static String TOKENS_REGEX = "[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"?|;.*|[^\\s\\[\\]{}('\"`,;)]*)";
-	static Pattern pattern = Pattern.compile(TOKENS_REGEX);
+	static Pattern PATTERN = Pattern.compile(TOKENS_REGEX);
+	static Map<String, String> QUOTE_TOKENS_MAP = Map.of("'", "quote", "~", "unquote", "`", "quasiquote",
+			"~@", "splice-unquote", "@", "deref");
 
 	List<String> tokens;
 	Integer position;
@@ -43,7 +46,7 @@ public class reader {
 	}
 
 	public static List<String> tokenize(String input) {
-		Matcher matcher = pattern.matcher(input);
+		Matcher matcher = PATTERN.matcher(input);
 		List<String> results = new ArrayList<>();
 		while (matcher.find()) {
 			results.add(matcher.group(1));
@@ -80,38 +83,15 @@ public class reader {
 				String unescaped = unescape(token.substring(1, token.length() - 1));
 
 				return new types().new MalSymbol(token);
-		} else if ("'".equals(token)) {
-			// quoted expr - the next form in the reader is quoted
-			MalType quote = new types().new MalSymbol("quote");
+		} else if (QUOTE_TOKENS_MAP.containsKey(token)) {
+			// The following form needs to be wrapped on a list with the substitution from the quoteTokens map
+			String substitution = QUOTE_TOKENS_MAP.get(token);
+			MalType symbol = new types().new MalSymbol(substitution);
 			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(quote, expr));
-			return list;
-		} else if ("`".equals(token)) {
-			// quasiquoted expr - the next form in the reader is quasiquoted
-			MalType quasi = new types().new MalSymbol("quasiquote");
-			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(quasi, expr));
-			return list;
-		} else if ("~".equals(token)) {
-			// unquote expr - the next form in the reader is unquoted
-			MalType unquote = new types().new MalSymbol("unquote");
-			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(unquote, expr));
-			return list;
-		} else if ("~@".equals(token)) {
-			// splice unquote expr - the next form in the reader is splice-unquoted
-			MalType spliceUnquote = new types().new MalSymbol("splice-unquote");
-			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(spliceUnquote, expr));
-			return list;
-		} else if ("@".equals(token)) {
-			// deref expr - the next form in the reader is dereferenced
-			MalType deref = new types().new MalSymbol("deref");
-			MalType expr = read_form(myReader);
-			MalList list = new types().new MalList(Arrays.asList(deref, expr));
+			MalList list = new types().new MalList(Arrays.asList(symbol, expr));
 			return list;
 		} else if ("^".equals(token)) {
-			// metadata on an expr - the next 2 forms are metadata and value
+			// metadata on an expr - the next 2 forms are: metadata and value
 			MalType withMeta = new types().new MalSymbol("with-meta");
 			MalType metadata = read_form(myReader);
 			MalType expr = read_form(myReader);
@@ -177,7 +157,4 @@ public class reader {
 		return new types().new MalList(items, openToken, closeToken);
 	}
 
-//	public static void main(String[] args) {
-//		System.out.println(tokenize("123"));
-//	}
 }
