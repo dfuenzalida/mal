@@ -1,6 +1,7 @@
 package mal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,9 +64,8 @@ public class reader {
 		if (token.matches("\\d+")) {
 			Integer value = Integer.parseInt(token);
 			return new types().new MalInteger(value);
-		} else {
-			// A String is a token with quotes "
-			if (token.startsWith("\"") || token.endsWith("\"")) {
+		} else if (token.startsWith("\"") || token.endsWith("\"")) {
+				// A String is a token with quotes "
 				
 				// A single quote string is not valid
 				if (token.length() == 1) {
@@ -80,9 +80,14 @@ public class reader {
 				String unescaped = unescape(token.substring(1, token.length() - 1));
 
 				return new types().new MalSymbol(token);
-			} else {
-				return new types().new MalSymbol(token);
-			}
+		} else if ("'".equals(token)) {
+			// quoted expr - the next form in the reader is quoted
+			MalType expr = read_form(myReader);
+			MalType quote = new types().new MalSymbol("quote");
+			MalList list = new types().new MalList(Arrays.asList(quote, expr));
+			return list;
+		} else {
+			return new types().new MalSymbol(token);
 		}
 	}
 	
@@ -103,7 +108,7 @@ public class reader {
 				if (c == '\\') {
 					builder.append('\\');
 					escaping = false;
-				} else if (c == 'b') {
+				} else if (c == 'b') { // TODO: \n \f \r \t
 					builder.append('\b');
 					escaping = false;
 				} else if (c == '\"') {
