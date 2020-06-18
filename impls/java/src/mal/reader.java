@@ -90,7 +90,7 @@ public class reader {
 			MalType expr = read_form(myReader);
 			MalList list = malTypes.new MalList(Arrays.asList(withMeta, expr, metadata));
 			return list;
-		} else if ("nil".equals(token)) {
+		} else if ("nil".equals(token) || token.startsWith(";")) {
 			return types.MalNil;
 		} else if ("true".equals(token)) {
 			return types.MalTrue;
