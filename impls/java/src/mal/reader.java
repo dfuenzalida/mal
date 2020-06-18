@@ -59,7 +59,7 @@ public class reader {
 
 	private static MalType read_atom(reader myReader) {
 		String token = myReader.next();
-		if (token.matches("\\d+")) {
+		if (token.matches("-?\\d+")) {
 			Integer value = Integer.parseInt(token);
 			return malTypes.new MalInteger(value);
 		} else if (token.startsWith("\"") || token.endsWith("\"")) {

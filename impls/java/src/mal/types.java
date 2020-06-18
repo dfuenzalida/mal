@@ -102,5 +102,10 @@ public class types {
 
 	public static MalBoolean MalTrue  = new types().new MalBoolean(true);
 	public static MalBoolean MalFalse = new types().new MalBoolean(false);
+
+
+	public abstract class MalFunction extends MalType {
+		abstract MalType apply(MalList args);
+	}
 }
 
