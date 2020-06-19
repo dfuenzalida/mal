@@ -87,6 +87,15 @@ public class types {
 		public String toString() {
 			return name.toString();
 		}
+
+		public boolean equals(Object obj) {
+			return (obj instanceof MalSymbol) && ((MalSymbol)obj).name.equals(this.name);
+		}
+
+		public int hashCode() { // important for Map lookups to actually work
+			return name.hashCode();
+		}
+
 	}
 
 	public class MalBoolean extends MalType {
