@@ -53,6 +53,10 @@ public class types {
 		public String toString() {
 			return value.toString();
 		}
+
+		public boolean equals(Object obj) {
+			return obj instanceof MalInteger && ((MalInteger)obj).value.equals(this.value);
+		}
 	}
 
 	public class MalString extends MalType {
@@ -69,6 +73,10 @@ public class types {
 			}
 			return String.format("\"%s\"", builder.toString());
 		}
+
+		public boolean equals(Object obj) {
+			return obj instanceof MalString && ((MalString)obj).value.equals(this.value);
+		}
 	}
 
 	public class MalKeyword extends MalType {
@@ -79,6 +87,10 @@ public class types {
 
 		public String toString() {
 			return String.format(":%s", name.toString());
+		}
+
+		public boolean equals(Object obj) {
+			return obj instanceof MalKeyword && ((MalKeyword)obj).name.equals(this.name);
 		}
 	}
 
@@ -109,7 +121,7 @@ public class types {
 		}
 
 		public String toString() {
-			return value ? "true!":"false!";
+			return value ? "true":"false";
 		}
 
 		public boolean equals(Object obj) {

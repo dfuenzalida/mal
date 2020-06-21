@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import mal.types.MalFunction;
-import mal.types.MalInteger;
 import mal.types.MalList;
 import mal.types.MalSymbol;
 import mal.types.MalType;
@@ -16,45 +15,7 @@ public class step4_if_fn_do {
 	env repl_env = new env(null, null, null);
 	
 	public step4_if_fn_do() {
-		repl_env.set(
-				malTypes.new MalSymbol("+"),
-				malTypes.new MalFunction() {
-					MalType apply(MalList args) {
-					MalInteger arg0 = (MalInteger) args.items.get(0);
-					MalInteger arg1 = (MalInteger) args.items.get(1);
-					return malTypes.new MalInteger(arg0.value + arg1.value);
-				}
-			});
-
-		repl_env.set(
-				malTypes.new MalSymbol("-"),
-				malTypes.new MalFunction() {
-					MalType apply(MalList args) {
-					MalInteger arg0 = (MalInteger) args.items.get(0);
-					MalInteger arg1 = (MalInteger) args.items.get(1);
-					return malTypes.new MalInteger(arg0.value - arg1.value);
-				}
-			});
-
-		repl_env.set(
-				malTypes.new MalSymbol("*"),
-				malTypes.new MalFunction() {
-					MalType apply(MalList args) {
-					MalInteger arg0 = (MalInteger) args.items.get(0);
-					MalInteger arg1 = (MalInteger) args.items.get(1);
-					return malTypes.new MalInteger(arg0.value * arg1.value);
-				}
-			});
-
-		repl_env.set(
-				malTypes.new MalSymbol("/"),
-				malTypes.new MalFunction() {
-					MalType apply(MalList args) {
-					MalInteger arg0 = (MalInteger) args.items.get(0);
-					MalInteger arg1 = (MalInteger) args.items.get(1);
-					return malTypes.new MalInteger(arg0.value / arg1.value);
-				}
-			});
+		core.ns.forEach((name, fn) -> repl_env.set(malTypes.new MalSymbol(name), fn));
 	}
 
 
@@ -92,8 +53,11 @@ public class step4_if_fn_do {
 							return eval(letBody, newEnv);
 						} else if (firstSymbol.name.equals("do")) {
 							// Evaluate all the elements of the list using eval_ast and return the final evaluated element
-							MalList evaluated = (MalList) eval_ast(inputList, replEnv);
-							return evaluated.items.get(evaluated.items.size() - 1);
+							MalType ret = null;
+							for (int i = 1; i < inputList.items.size(); i++) {
+								ret = eval(inputList.items.get(i), replEnv);
+							}
+							return ret;
 						} else if (firstSymbol.name.equals("if")) {
 							MalType test = eval(inputList.items.get(1), replEnv);
 							if (types.MalNil.equals(test) || types.MalFalse.equals(test)) {
@@ -110,7 +74,7 @@ public class step4_if_fn_do {
 						} else if (firstSymbol.name.equals("fn*")) {
 							MalList binds = (MalList) inputList.items.get(1);
 							MalType expr = inputList.items.get(2);
-							MalFunction fn = new types().new MalFunction() {								
+							MalFunction fn = malTypes.new MalFunction() {
 								MalType apply(MalList args) {
 									env newEnv = new env(replEnv, binds, args);
 									return eval(expr, newEnv);
@@ -164,7 +128,10 @@ public class step4_if_fn_do {
 		step4_if_fn_do rp = new step4_if_fn_do();
 
 		// Local Test
-		// System.out.println(rp.rep("( (fn* (a) a) 7)"));
+		// System.out.println(rp.rep("(do (prn 101))"));
+
+		// Functions defined in MAL itself
+		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
 
 		String input;
 		do {
