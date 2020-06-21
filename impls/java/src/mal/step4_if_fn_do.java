@@ -10,12 +10,12 @@ import mal.types.MalSymbol;
 import mal.types.MalType;
 import mal.types.RepException;
 
-public class step3_env {
+public class step4_if_fn_do {
 
 	mal.types malTypes = new types();
 	env repl_env = new env(null, null, null);
 	
-	public step3_env() {
+	public step4_if_fn_do() {
 		repl_env.set(
 				malTypes.new MalSymbol("+"),
 				malTypes.new MalFunction() {
@@ -90,6 +90,33 @@ public class step3_env {
 							// finally, eval the body after the name-value pairs and return the result
 							MalType letBody = inputList.items.get(2);
 							return eval(letBody, newEnv);
+						} else if (firstSymbol.name.equals("do")) {
+							// Evaluate all the elements of the list using eval_ast and return the final evaluated element
+							MalList evaluated = (MalList) eval_ast(inputList, replEnv);
+							return evaluated.items.get(evaluated.items.size() - 1);
+						} else if (firstSymbol.name.equals("if")) {
+							MalType test = eval(inputList.items.get(1), replEnv);
+							if (types.MalNil.equals(test) || types.MalFalse.equals(test)) {
+								if (inputList.items.size() == 3) {
+									return types.MalNil;
+								} else {
+									MalType alternative = eval(inputList.items.get(3), replEnv);
+									return alternative;
+								}
+							} else {
+								MalType consecuence = eval(inputList.items.get(2), replEnv);
+								return consecuence;
+							}
+						} else if (firstSymbol.name.equals("fn*")) {
+							MalList binds = (MalList) inputList.items.get(1);
+							MalType expr = inputList.items.get(2);
+							MalFunction fn = new types().new MalFunction() {								
+								MalType apply(MalList args) {
+									env newEnv = new env(replEnv, binds, args);
+									return eval(expr, newEnv);
+								}
+							};
+							return fn;
 						}
 					}
 					
@@ -134,16 +161,19 @@ public class step3_env {
 	}
 
 	public static void main(String... args) {
-		step3_env rp = new step3_env();
+		step4_if_fn_do rp = new step4_if_fn_do();
 
 		// Local Test
-		// System.out.println(rp.rep("(def! a 6)"));
+		// System.out.println(rp.rep("( (fn* (a) a) 7)"));
 
 		String input;
 		do {
 			input = System.console().readLine("user> ");
 			if (input != null) {
-				System.out.println(rp.rep(input));
+				String repResult = rp.rep(input);
+				if (repResult != null) {
+					System.out.println(repResult);
+				}
 			}
 		} while (input != null);
 	}

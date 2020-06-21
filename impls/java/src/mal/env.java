@@ -3,6 +3,7 @@ package mal;
 import java.util.HashMap;
 import java.util.Map;
 
+import mal.types.MalList;
 import mal.types.MalSymbol;
 import mal.types.MalType;
 
@@ -11,9 +12,14 @@ public class env {
 	public env outer;
 	Map<MalSymbol, MalType> data;
 
-	public env(env outer) {
+	public env(env outer, MalList binds, MalList exprs) {
 		this.outer = outer;
 		this.data = new HashMap<>();
+		for (int i = 0; binds != null && exprs != null && i < Math.min(binds.items.size(), exprs.items.size()); i++) {
+			MalSymbol key = (MalSymbol) binds.items.get(i);
+			MalType value = exprs.items.get(i);
+			this.set(key, value);
+		}
 	}
 
 	public void set(MalSymbol key, MalType value) {
@@ -25,7 +31,7 @@ public class env {
 			return this;
 		} else {
 			if (outer == null) {
-				throw new RepException(String.format("!'%s' not found on any environment", key.name));
+				throw new types().new RepException(String.format("'%s' not found on any environment", key.name));
 			} else {
 				return this.outer.find(key);
 			}
@@ -38,14 +44,6 @@ public class env {
 			throw new RuntimeException(String.format("'%s' not found in any environment", key));
 		} else {
 			return env.data.get(key);
-		}
-	}
-
-	// Exceptions of this type have their message printed in the REPL instead of just 'EOF'
-	public class RepException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-		public RepException(String msg) {
-			super(msg);
 		}
 	}
 }

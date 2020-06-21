@@ -14,6 +14,10 @@ public class types {
 		public String toString() {
 			return "nil";
 		}
+
+		public boolean equals(Object obj) {
+			return (obj == types.MalNil);
+		}
 	};
 
 	public class MalList extends MalType {
@@ -105,7 +109,11 @@ public class types {
 		}
 
 		public String toString() {
-			return value ? "true":"false";
+			return value ? "true!":"false!";
+		}
+
+		public boolean equals(Object obj) {
+			return (obj instanceof MalBoolean) && ((MalBoolean) obj).value == this.value;
 		}
 	}
 
@@ -115,6 +123,17 @@ public class types {
 
 	public abstract class MalFunction extends MalType {
 		abstract MalType apply(MalList args);
+
+		public String toString() {
+			return "#<function>";
+		}
+	}
+
+	// Exceptions of this type have their message printed in the REPL instead of just 'EOF'
+	public class RepException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		public RepException(String msg) {
+			super(msg);
+		}
 	}
 }
-
