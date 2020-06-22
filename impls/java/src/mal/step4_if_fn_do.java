@@ -151,7 +151,7 @@ public class step4_if_fn_do {
 		step4_if_fn_do rp = new step4_if_fn_do();
 
 		// Local Test
-		System.out.println(rp.rep("(= [(list)] (list []))"));
+		// System.out.println(rp.rep("(= [(list)] (list []))"));
 
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
