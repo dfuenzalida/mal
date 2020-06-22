@@ -139,7 +139,7 @@ public class step4_if_fn_do {
 		try {
 			MalType afterRead = reader.read_str(input);
 			MalType afterEval = this.eval(afterRead, repl_env);
-			return printer.pr_str(afterEval);
+			return printer.pr_str(afterEval, true);
 		} catch (RepException rex) {
 			return rex.getMessage();
 		} catch (Exception e) {
@@ -151,7 +151,7 @@ public class step4_if_fn_do {
 		step4_if_fn_do rp = new step4_if_fn_do();
 
 		// Local Test
-		// System.out.println(rp.rep("( (fn* (& more) (count more)) )"));
+		System.out.println(rp.rep("(= [(list)] (list []))"));
 
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)

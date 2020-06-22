@@ -1,7 +1,9 @@
 package mal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import mal.types.MalFunction;
 import mal.types.MalInteger;
@@ -45,10 +47,36 @@ public class core {
 			}
 		});
 
+		ns.put("pr-str", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				List<String> strItems = args.items.stream().map(i -> i.toString(true)).collect(Collectors.toList());
+				String joined = String.join(" ", strItems);
+				return malTypes.new MalString(joined);
+			}
+		});
+
+		ns.put("str", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				List<String> strItems = args.items.stream().map(i -> i.toString(false)).collect(Collectors.toList());
+				String joined = String.join("", strItems);
+				return malTypes.new MalString(joined);
+			}
+		});
+
 		ns.put("prn", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
-				System.out.println(printer.pr_str(arg0));
+				List<String> strItems = args.items.stream().map(i -> i.toString(true)).collect(Collectors.toList());
+				String joined = String.join(" ", strItems);
+				System.out.println(joined);
+				return types.MalNil;
+			}
+		});
+
+		ns.put("println", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				List<String> strItems = args.items.stream().map(i -> i.toString(false)).collect(Collectors.toList());
+				String joined = String.join(" ", strItems);
+				System.out.println(joined);
 				return types.MalNil;
 			}
 		});
@@ -62,7 +90,7 @@ public class core {
 		ns.put("list?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.items.get(0);
-				return (arg0 instanceof MalList) ? types.MalTrue : types.MalFalse;
+				return (arg0 instanceof MalList && ((MalList)arg0).open.equals("(")) ? types.MalTrue : types.MalFalse;
 			}
 		});
 

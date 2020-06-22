@@ -125,7 +125,7 @@ public class step3_env {
 		try {
 			MalType afterRead = reader.read_str(input);
 			MalType afterEval = this.eval(afterRead, repl_env);
-			return printer.pr_str(afterEval);
+			return printer.pr_str(afterEval, true);
 		} catch (RepException rex) {
 			return rex.getMessage();
 		} catch (Exception e) {

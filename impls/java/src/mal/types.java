@@ -8,10 +8,12 @@ public class types {
 
 	static Map<Character, String> ESCAPE_CHARS = Map.of('\\', "\\\\", '\n', "\\n", '\r', "\\r", '\t', "\\t", '"', "\\\"");
 
-	public class MalType { }
+	public abstract class MalType {
+		public abstract String toString(boolean print_readably);
+	}
 
 	public static MalType MalNil = new types().new MalType() {
-		public String toString() {
+		public String toString(boolean unused) {
 			return "nil";
 		}
 
@@ -37,10 +39,22 @@ public class types {
 			this.close = close;
 		}
 
-		public String toString() {
-			List<String> strItems = items.stream().map(i -> i.toString()).collect(Collectors.toList());
+		public String toString(boolean print_readably) {
+			List<String> strItems = items.stream().map(i -> i.toString(print_readably)).collect(Collectors.toList());
 			String joined = String.join(" ", strItems);
 			return String.format("%s%s%s", open, joined, close);
+		}
+
+		public boolean equals(Object obj) {
+			if (!(obj instanceof MalList)) return false;
+			MalList objList = (MalList) obj;
+			if (objList.items.size() != this.items.size()) return false;
+			for (int i = 0; i < this.items.size(); i++) {
+				if (!this.items.get(i).equals(objList.items.get(i))) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 	
@@ -50,7 +64,7 @@ public class types {
 			this.value = value;
 		}
 
-		public String toString() {
+		public String toString(boolean print_readably) {
 			return value.toString();
 		}
 
@@ -66,12 +80,20 @@ public class types {
 		}
 
 		public String toString() {
-			StringBuilder builder = new StringBuilder();
-			for (int i=0; i < value.length(); i++) {
-				char c = value.charAt(i);
-				builder.append(ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
+			return this.toString(true);
+		}
+
+		public String toString(boolean print_readably) {
+			if (print_readably) {
+				StringBuilder builder = new StringBuilder();
+				for (int i=0; i < value.length(); i++) {
+					char c = value.charAt(i);
+					builder.append(ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
+				}
+				return String.format("\"%s\"", builder.toString());
+			} else {
+				return value;
 			}
-			return String.format("\"%s\"", builder.toString());
 		}
 
 		public boolean equals(Object obj) {
@@ -85,8 +107,8 @@ public class types {
 			this.name = name;
 		}
 
-		public String toString() {
-			return String.format(":%s", name.toString());
+		public String toString(boolean print_readably) {
+			return String.format(":%s", name);
 		}
 
 		public boolean equals(Object obj) {
@@ -100,7 +122,7 @@ public class types {
 			this.name = name;
 		}
 
-		public String toString() {
+		public String toString(boolean print_readably) {
 			return name.toString();
 		}
 
@@ -120,7 +142,7 @@ public class types {
 			this.value = value;
 		}
 
-		public String toString() {
+		public String toString(boolean print_readably) {
 			return value ? "true":"false";
 		}
 
@@ -136,7 +158,7 @@ public class types {
 	public abstract class MalFunction extends MalType {
 		abstract MalType apply(MalList args);
 
-		public String toString() {
+		public String toString(boolean print_readably) {
 			return "#<function>";
 		}
 	}

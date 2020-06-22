@@ -87,7 +87,7 @@ public class step2_eval {
 		try {
 			MalType afterRead = reader.read_str(input);
 			MalType afterEval = this.eval(afterRead, repl_env);
-			return printer.pr_str(afterEval);
+			return printer.pr_str(afterEval, true);
 		} catch (Exception e) {
 			return "EOF"; // generic error
 		}
