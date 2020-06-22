@@ -76,7 +76,7 @@ public class core {
 
 		ns.put("count", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				if (args.items.get(0) == types.MalNil) {
+				if (args.items.size() == 0 || args.items.get(0) == types.MalNil) {
 					return malTypes.new MalInteger(0);
 				} else {
 					MalList arg0 = (MalList) args.items.get(0);
