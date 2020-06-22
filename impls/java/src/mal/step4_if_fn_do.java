@@ -1,5 +1,6 @@
 package mal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -72,11 +73,33 @@ public class step4_if_fn_do {
 								return consecuence;
 							}
 						} else if (firstSymbol.name.equals("fn*")) {
-							MalList binds = (MalList) inputList.items.get(1);
-							MalType expr = inputList.items.get(2);
 							MalFunction fn = malTypes.new MalFunction() {
 								MalType apply(MalList args) {
-									env newEnv = new env(replEnv, binds, args);
+									MalList binds = (MalList) inputList.items.get(1);
+									MalType expr = inputList.items.get(2);
+									// Copy the lists binds and args lists around, if one of the 'binds' is '&'
+									// capture every args afterwards as a list
+									MalList bindsNew = malTypes.new MalList(new ArrayList<>());
+									MalList argsNew = malTypes.new MalList(new ArrayList<>());
+									for (int i = 0; i < binds.items.size(); i++) {
+										MalSymbol bindsi = (MalSymbol) binds.items.get(i);
+										MalType argsi = (i < args.items.size()) ? args.items.get(i) : types.MalNil;
+										if (bindsi.name.equals("&")) {
+											bindsi = (MalSymbol) binds.items.get(i + 1); // & more
+											if (i < args.items.size()) {
+												argsi = malTypes.new MalList(args.items.subList(i, args.items.size()));
+											} else {
+												argsi = malTypes.new MalList(new ArrayList<>());
+											}
+											bindsNew.items.add(bindsi);
+											argsNew.items.add(argsi);
+											break;
+										} else {
+											bindsNew.items.add(bindsi);
+											argsNew.items.add(argsi);
+										}
+									}
+									env newEnv = new env(replEnv, bindsNew, argsNew);
 									return eval(expr, newEnv);
 								}
 							};
@@ -128,7 +151,7 @@ public class step4_if_fn_do {
 		step4_if_fn_do rp = new step4_if_fn_do();
 
 		// Local Test
-		// System.out.println(rp.rep("(do (prn 101))"));
+		// System.out.println(rp.rep("( (fn* (& more) (count more)) )"));
 
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
