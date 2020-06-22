@@ -16,6 +16,8 @@ public class reader {
 	static Pattern PATTERN = Pattern.compile(TOKENS_REGEX);
 	static Map<String, String> QUOTE_TOKENS_MAP = Map.of("'", "quote", "~", "unquote", "`", "quasiquote",
 			"~@", "splice-unquote", "@", "deref");
+	static Map<Character, Character> unescapeMap = Map.of('\\', '\\', 'n', '\n', 'b', '\b', 'f', '\f',
+			'r', '\r', 't', '\t', '\"', '\"', '\'', '\'');
 
 	List<String> tokens;
 	Integer position;
@@ -116,25 +118,15 @@ public class reader {
 				escaping = true;
 				continue;
 			}
-			
+
 			if (!escaping) {
 				builder.append(c);
-			} else {
-				if (c == '\\') {
-					builder.append('\\');
-					escaping = false;
-				} else if (c == 'n') { // TODO: \b \f \r \t
-					builder.append('\n');
-					escaping = false;
-				} else if (c == '\"') {
-					builder.append('\"');
-					escaping = false;
-				} else if (c == '\'') {
-					builder.append('\'');
-					escaping = false;
-				}
-			}	
+			} else if (unescapeMap.containsKey(c)) {
+				builder.append(unescapeMap.get(c));
+				escaping = false;
+			}
 		}
+
 		if (escaping) throw new RuntimeException("Unfinished escape sequence");
 		return builder.toString();
 	}
