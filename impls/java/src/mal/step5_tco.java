@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mal.types.FunctionTco;
 import mal.types.MalFunction;
 import mal.types.MalList;
 import mal.types.MalSymbol;
@@ -58,7 +59,8 @@ public class step5_tco {
 							} else if (firstSymbol.name.equals("do")) {
 								// Evaluate all the elements of the list using eval_ast and return the final evaluated element
 								for (int i = 1; i < inputList.items.size() - 1; i++) {
-									eval_ast(inputList.items.get(i), replEnv); // TODO eval_ast or just eval?
+									// TODO eval_ast or just eval? See: (do (/ 1 0) (+ 1 1)) should crash
+									eval(inputList.items.get(i), replEnv);
 								}
 								ast = inputList.items.get(inputList.items.size() - 1);
 								continue;
@@ -76,11 +78,11 @@ public class step5_tco {
 									continue;
 								}
 							} else if (firstSymbol.name.equals("fn*")) {
-								final env replEnvCopy = new env(replEnv, null, null);
+								final env replEnvCopy = new env(replEnv, null, null); // required because Java wants replEnv to be final
+								MalList binds = (MalList) inputList.items.get(1);
+								MalType expr = inputList.items.get(2);
 								MalFunction fn = malTypes.new MalFunction() {
 									MalType apply(MalList args) {
-										MalList binds = (MalList) inputList.items.get(1);
-										MalType expr = inputList.items.get(2);
 										// Copy the lists binds and args lists around, if one of the 'binds' is '&'
 										// capture every args afterwards as a list
 										MalList bindsNew = malTypes.new MalList(new ArrayList<>());
@@ -107,15 +109,25 @@ public class step5_tco {
 										return eval(expr, newEnv);
 									}
 								};
-								return fn;
+								return malTypes.new FunctionTco(expr, binds, replEnv, fn);
 							}
 						}
 						
+						// regular function application
 						MalList evaluated = (MalList) eval_ast(inputList, replEnv);
-						MalFunction func = (MalFunction) evaluated.items.get(0);
-						MalList otherArgs = malTypes.new MalList(evaluated.items.subList(1, evaluated.items.size()));
-						return func.apply(otherArgs);
+						MalType funcOrFunctionTco = evaluated.items.get(0);
+						MalList funcArgs = malTypes.new MalList(evaluated.items.subList(1, evaluated.items.size()));
+						if (funcOrFunctionTco instanceof MalFunction) {
+							MalFunction func = (MalFunction) funcOrFunctionTco;
+							return func.apply(funcArgs);
+						} else {
+							FunctionTco funcTco = (FunctionTco) funcOrFunctionTco;
+							ast = funcTco.ast;
+							replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
+							continue;
+						}
 					} else {
+						// vector and pseudo-maps literals evaluate the contents with eval_ast and wrap in square/braces
 						MalList evaluated = (MalList) eval_ast(inputList, replEnv);
 						MalList result = malTypes.new MalList(evaluated.items);
 						result.open = inputList.open;

@@ -170,4 +170,22 @@ public class types {
 			super(msg);
 		}
 	}
+
+	public class FunctionTco extends MalType {
+		public MalType ast;
+		public MalList params;
+		public env functionEnv;
+		public MalFunction fn;
+
+		public FunctionTco(MalType ast, MalList params, env functionEnv, MalFunction fn) {
+			this.ast = ast;
+			this.params = params;
+			this.functionEnv = functionEnv;
+			this.fn = fn;
+		}
+
+		public String toString(boolean print_readably) {
+			return "#<functionTco>";
+		}
+	}
 }
