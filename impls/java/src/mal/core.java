@@ -1,13 +1,18 @@
 package mal;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import mal.types.MalAtom;
 import mal.types.MalFunction;
 import mal.types.MalInteger;
 import mal.types.MalList;
+import mal.types.MalString;
 import mal.types.MalType;
 
 public class core {
@@ -169,6 +174,71 @@ public class core {
 				MalInteger arg0 = (MalInteger) args.items.get(0);
 				MalInteger arg1 = (MalInteger) args.items.get(1);
 				return (arg0.value >= arg1.value) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("read-string", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalString arg0 = (MalString) args.items.get(0);
+				return reader.read_str(arg0.value);
+			}
+		});
+
+		ns.put("slurp", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				try {
+					MalString arg0 = (MalString) args.items.get(0);
+					String fileName = arg0.value;
+					String contents = String.join("\n", Files.readAllLines(Paths.get(fileName)));
+					return malTypes.new MalString(contents);
+				} catch (Exception ex) {
+					throw malTypes.new RepException(ex.getMessage());
+				}
+			}
+		});
+
+		ns.put("atom", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.items.get(0);
+				return malTypes.new MalAtom(arg0);
+			}
+		});
+
+		ns.put("atom?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.items.get(0);
+				return (arg0 instanceof MalAtom) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("deref", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalAtom arg0 = (MalAtom) args.items.get(0);
+				return arg0.value;
+			}
+		});
+
+		ns.put("reset!", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalAtom arg0 = (MalAtom) args.items.get(0);
+				MalType arg1 = args.items.get(1);
+				return arg0.value = arg1;
+			}
+		});
+
+		ns.put("swap!", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalAtom atom = (MalAtom) args.items.get(0);
+				MalFunction fn = (MalFunction) args.items.get(1);
+				List<MalType> fnArgs = new ArrayList<>();
+				fnArgs.add(atom.value);
+				if (args.items.size() > 2) {
+					fnArgs.addAll(args.items.subList(2, args.items.size()));
+				}
+				MalList fnArgsMalList = malTypes.new MalList(fnArgs);
+				MalType retVal = fn.apply(fnArgsMalList);
+				atom.value = retVal;
+				return retVal;
 			}
 		});
 

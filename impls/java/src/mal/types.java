@@ -45,6 +45,10 @@ public class types {
 			return String.format("%s%s%s", open, joined, close);
 		}
 
+		public String toString() {
+			return this.toString(true);
+		}
+
 		public boolean equals(Object obj) {
 			if (!(obj instanceof MalList)) return false;
 			MalList objList = (MalList) obj;
@@ -65,6 +69,10 @@ public class types {
 		}
 
 		public String toString(boolean print_readably) {
+			return value.toString();
+		}
+
+		public String toString() {
 			return value.toString();
 		}
 
@@ -124,6 +132,10 @@ public class types {
 
 		public String toString(boolean print_readably) {
 			return name.toString();
+		}
+
+		public String toString() {
+			return this.toString(true);
 		}
 
 		public boolean equals(Object obj) {
@@ -186,6 +198,22 @@ public class types {
 
 		public String toString(boolean print_readably) {
 			return "#<functionTco>";
+		}
+	}
+
+	public class MalAtom extends MalType {
+		MalType value;
+
+		public MalAtom(MalType value) {
+			this.value = value;
+		}
+
+		public String toString(boolean print_readably) {
+			return String.format("(atom %s)", value.toString(print_readably));
+		}
+
+		public String toString() {
+			return this.toString(true);
 		}
 	}
 }
