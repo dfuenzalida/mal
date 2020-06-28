@@ -92,6 +92,12 @@ public class reader {
 			MalType expr = read_form(myReader);
 			MalList list = malTypes.new MalList(Arrays.asList(withMeta, expr, metadata));
 			return list;
+		} else if ("@".equals(token)) {
+			// deref in an atom
+			MalType deref = malTypes.new MalSymbol("deref");
+			MalType atom = read_form(myReader);
+			MalList list = malTypes.new MalList(Arrays.asList(deref, atom));
+			return list;
 		} else if ("nil".equals(token)) {
 			return types.MalNil;
 		} else if (token.startsWith(";")) {
