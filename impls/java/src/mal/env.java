@@ -2,6 +2,7 @@ package mal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import mal.types.MalList;
 import mal.types.MalSymbol;
@@ -45,5 +46,10 @@ public class env {
 		} else {
 			return env.data.get(key);
 		}
+	}
+
+	public String toString() {
+		return String.join(", ",
+				data.keySet().stream().map(k -> k.toString()).collect(Collectors.toList()));
 	}
 }
