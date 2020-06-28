@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import mal.types.FunctionTco;
 import mal.types.MalAtom;
 import mal.types.MalFunction;
 import mal.types.MalInteger;
@@ -229,14 +230,22 @@ public class core {
 		ns.put("swap!", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalAtom atom = (MalAtom) args.items.get(0);
-				MalFunction fn = (MalFunction) args.items.get(1);
+				MalType fnOrFunctionTco = args.items.get(1);
 				List<MalType> fnArgs = new ArrayList<>();
 				fnArgs.add(atom.value);
-				if (args.items.size() > 2) {
-					fnArgs.addAll(args.items.subList(2, args.items.size()));
-				}
+				if (args.items.size() > 2) { fnArgs.addAll(args.items.subList(2, args.items.size())); }
 				MalList fnArgsMalList = malTypes.new MalList(fnArgs);
-				MalType retVal = fn.apply(fnArgsMalList); // TODO extend for FunctionTco
+				MalType retVal;
+
+				if (fnOrFunctionTco instanceof MalFunction) {
+					MalFunction fn = (MalFunction) fnOrFunctionTco;
+					retVal = fn.apply(fnArgsMalList);
+				} else {
+					FunctionTco funcTco = (FunctionTco) fnOrFunctionTco;
+					MalType ast = funcTco.ast;
+					env replEnv = new env(funcTco.functionEnv, funcTco.params, fnArgsMalList);
+					retVal = step6_file.eval(ast, replEnv);
+				}
 				atom.value = retVal;
 				return retVal;
 			}

@@ -15,15 +15,15 @@ import mal.types.RepException;
 
 public class step6_file {
 
-	mal.types malTypes = new types();
-	env repl_env = new env(null, null, null);
+	static mal.types malTypes = new types();
+	static env repl_env = new env(null, null, null);
 	
 	public step6_file() {
 		core.ns.forEach((name, fn) -> repl_env.set(malTypes.new MalSymbol(name), fn));
 	}
 
 
-	public MalType eval(MalType ast, env replEnv) {
+	public static MalType eval(MalType ast, env replEnv) {
 		while (true) {
 			if (!(ast instanceof MalList)) {
 				return eval_ast(ast, replEnv);
@@ -148,7 +148,7 @@ public class step6_file {
 		}
 	}
 
-	public MalType eval_ast(MalType ast, env replEnv) {
+	public static MalType eval_ast(MalType ast, env replEnv) {
 		if (ast instanceof MalSymbol) {
 			MalSymbol astSymbol = (MalSymbol) ast;
 			return replEnv.get(astSymbol);
@@ -164,7 +164,7 @@ public class step6_file {
 	public String rep(String input) {
 		try {
 			MalType afterRead = reader.read_str(input);
-			MalType afterEval = this.eval(afterRead, repl_env);
+			MalType afterEval = eval(afterRead, repl_env);
 			return printer.pr_str(afterEval, true);
 		} catch (RepException rex) {
 			return rex.getMessage();
@@ -176,24 +176,8 @@ public class step6_file {
 	public static void main(String... args) {
 		step6_file rp = new step6_file();
 
-		// Local Test
-		// System.out.println(rp.rep("(= [(list)] (list []))"));
-//		rp.rep("(def! mal-prog (list + 1 2))");
-//		rp.rep("(eval mal-prog)");
-
-		// Functions defined in MAL itself
-		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
-		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
-//		rp.rep("(load-file \"../tests/incA.mal\")");
-//		rp.rep("(inc4 1)");
-
-//		rp.rep("(def! inc (fn* (x) (+ 1 x)))");
-//		rp.rep("(def! a (atom 1))");
-//		rp.rep("(swap! a (fn* (x) (+ x 1)))");
-
 		if (args.length > 0) {
 			String fileName = args[0];
-			rp.rep(String.format("(println \"loading %s\")", fileName));
 			rp.rep(String.format("(load-file \"%s\")", fileName));
 		}
 
@@ -207,6 +191,20 @@ public class step6_file {
 		String defArgv = String.format("(def! *ARGV* (list %s))", String.join(" ", quotedArgs));
 		rp.rep(defArgv);
 		
+		// Local Test
+//		rp.rep("(def! mal-prog (list + 1 2))");
+//		rp.rep("(eval mal-prog)");
+
+		// Functions defined in MAL itself
+		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
+		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
+//		rp.rep("(load-file \"../tests/incA.mal\")");
+//		rp.rep("(inc4 1)");
+
+//		rp.rep("(def! inc (fn* (x) (+ 1 x)))");
+//		rp.rep("(def! a (atom 1))");
+//		rp.rep("(swap! a (fn* (x) (+ x 1)))");
+
 		String input;
 		do {
 			input = System.console().readLine("user> ");
