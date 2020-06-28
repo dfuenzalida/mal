@@ -86,8 +86,8 @@ public class step6_file {
 								MalType expr = inputList.items.get(2);
 								MalFunction fn = malTypes.new MalFunction() {
 									MalType apply(MalList args) {
-										// Copy the lists binds and args lists around, if one of the 'binds' is '&'
-										// capture every args afterwards as a list
+										// Copy the lists binds and args lists around, if one of the 'binds' is '&',
+										// then capture every args afterwards as a list
 										MalList bindsNew = malTypes.new MalList(new ArrayList<>());
 										MalList argsNew = malTypes.new MalList(new ArrayList<>());
 										for (int i = 0; i < binds.items.size(); i++) {
@@ -192,18 +192,12 @@ public class step6_file {
 		rp.rep(defArgv);
 		
 		// Local Test
-//		rp.rep("(def! mal-prog (list + 1 2))");
-//		rp.rep("(eval mal-prog)");
 
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
 		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
-//		rp.rep("(load-file \"../tests/incA.mal\")");
-//		rp.rep("(inc4 1)");
-
-//		rp.rep("(def! inc (fn* (x) (+ 1 x)))");
-//		rp.rep("(def! a (atom 1))");
-//		rp.rep("(swap! a (fn* (x) (+ x 1)))");
+		rp.rep("(load-file \"../tests/incA.mal\")");
+		rp.rep("(inc4 1)");
 
 		String input;
 		do {

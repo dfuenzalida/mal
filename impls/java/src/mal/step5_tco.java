@@ -59,7 +59,6 @@ public class step5_tco {
 							} else if (firstSymbol.name.equals("do")) {
 								// Evaluate all the elements of the list using eval_ast and return the final evaluated element
 								for (int i = 1; i < inputList.items.size() - 1; i++) {
-									// TODO eval_ast or just eval? See: (do (/ 1 0) (+ 1 1)) should crash
 									eval(inputList.items.get(i), replEnv);
 								}
 								ast = inputList.items.get(inputList.items.size() - 1);
