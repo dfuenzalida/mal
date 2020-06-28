@@ -189,7 +189,7 @@ public class core {
 				try {
 					MalString arg0 = (MalString) args.items.get(0);
 					String fileName = arg0.value;
-					String contents = String.join("\n", Files.readAllLines(Paths.get(fileName)));
+					String contents = String.join("\n", Files.readAllLines(Paths.get(fileName))) + "\n";
 					return malTypes.new MalString(contents);
 				} catch (Exception ex) {
 					throw malTypes.new RepException(ex.getMessage());
@@ -236,7 +236,7 @@ public class core {
 					fnArgs.addAll(args.items.subList(2, args.items.size()));
 				}
 				MalList fnArgsMalList = malTypes.new MalList(fnArgs);
-				MalType retVal = fn.apply(fnArgsMalList);
+				MalType retVal = fn.apply(fnArgsMalList); // TODO extend for FunctionTco
 				atom.value = retVal;
 				return retVal;
 			}
