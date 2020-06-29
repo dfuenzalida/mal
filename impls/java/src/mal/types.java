@@ -10,10 +10,14 @@ public class types {
 
 	public abstract class MalType {
 		public abstract String toString(boolean print_readably);
+
+		public String toString() {
+			return this.toString(true);
+		}
 	}
 
 	public static MalType MalNil = new types().new MalType() {
-		public String toString(boolean unused) {
+		public String toString(boolean print_readably) {
 			return "nil";
 		}
 
@@ -45,10 +49,6 @@ public class types {
 			return String.format("%s%s%s", open, joined, close);
 		}
 
-		public String toString() {
-			return this.toString(true);
-		}
-
 		public boolean equals(Object obj) {
 			if (!(obj instanceof MalList)) return false;
 			MalList objList = (MalList) obj;
@@ -72,10 +72,6 @@ public class types {
 			return value.toString();
 		}
 
-		public String toString() {
-			return value.toString();
-		}
-
 		public boolean equals(Object obj) {
 			return obj instanceof MalInteger && ((MalInteger)obj).value.equals(this.value);
 		}
@@ -85,10 +81,6 @@ public class types {
 		public String value;
 		public MalString(String value) {
 			this.value = value;
-		}
-
-		public String toString() {
-			return this.toString(true);
 		}
 
 		public String toString(boolean print_readably) {
@@ -132,10 +124,6 @@ public class types {
 
 		public String toString(boolean print_readably) {
 			return name.toString();
-		}
-
-		public String toString() {
-			return this.toString(true);
 		}
 
 		public boolean equals(Object obj) {
