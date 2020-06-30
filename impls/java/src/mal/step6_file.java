@@ -22,7 +22,6 @@ public class step6_file {
 		core.ns.forEach((name, fn) -> repl_env.set(malTypes.new MalSymbol(name), fn));
 	}
 
-
 	public static MalType eval(MalType ast, env replEnv) {
 		while (true) {
 			if (!(ast instanceof MalList)) {
@@ -61,11 +60,10 @@ public class step6_file {
 							} else if (firstSymbol.name.equals("do")) {
 								// Evaluate all the elements of the list using eval_ast and return the final evaluated element
 								for (int i = 1; i < inputList.items.size() - 1; i++) {
-									MalType item = inputList.items.get(i);
 									// TODO eval_ast or just eval? See: (do (/ 1 0) (+ 1 1)) should crash
-									eval(item, replEnv);
+									eval(inputList.items.get(i), replEnv);
 								}
-								ast = inputList.items.get(inputList.items.size() - 1); // unevaluated
+								ast = inputList.items.get(inputList.items.size() - 1);
 								continue;
 							} else if (firstSymbol.name.equals("if")) {
 								MalType test = eval(inputList.items.get(1), replEnv);
@@ -81,13 +79,13 @@ public class step6_file {
 									continue;
 								}
 							} else if (firstSymbol.name.equals("fn*")) {
-								final env replEnvCopy = new env(replEnv, null, null); // required because Java wants replEnv to be final
+								final env replEnvCopy = replEnv; // new env(replEnv, null, null); // required because Java wants replEnv to be final
 								MalList binds = (MalList) inputList.items.get(1);
 								MalType expr = inputList.items.get(2);
 								MalFunction fn = malTypes.new MalFunction() {
 									MalType apply(MalList args) {
-										// Copy the lists binds and args lists around, if one of the 'binds' is '&',
-										// then capture every args afterwards as a list
+										// Copy the lists binds and args lists around, if one of the 'binds' is '&'
+										// capture every args afterwards as a list
 										MalList bindsNew = malTypes.new MalList(new ArrayList<>());
 										MalList argsNew = malTypes.new MalList(new ArrayList<>());
 										for (int i = 0; i < binds.items.size(); i++) {
@@ -96,8 +94,7 @@ public class step6_file {
 											if (bindsi.name.equals("&")) {
 												bindsi = (MalSymbol) binds.items.get(i + 1); // & more
 												if (i < args.items.size()) {
-													List<MalType> argItems = new ArrayList<>(args.items.subList(i, args.items.size()));
-													argsi = malTypes.new MalList(argItems);
+													argsi = malTypes.new MalList(args.items.subList(i, args.items.size()));
 												} else {
 													argsi = malTypes.new MalList(new ArrayList<>());
 												}
@@ -114,26 +111,21 @@ public class step6_file {
 									}
 								};
 								return malTypes.new FunctionTco(expr, binds, replEnv, fn);
-							} else if (firstSymbol.name.equals("eval")) {
-								MalType expr = inputList.items.get(1);
-								MalType exprAst = eval(expr, replEnv);
-								return eval(exprAst, replEnv);
+							} else {
+								// regular function application
+								MalList evaluated = (MalList) eval_ast(inputList, replEnv);
+								MalType funcOrFunctionTco = evaluated.items.get(0);
+								MalList funcArgs = malTypes.new MalList(evaluated.items.subList(1, evaluated.items.size()));
+								if (funcOrFunctionTco instanceof MalFunction) {
+									MalFunction func = (MalFunction) funcOrFunctionTco;
+									return func.apply(funcArgs);
+								} else {
+									FunctionTco funcTco = (FunctionTco) funcOrFunctionTco;
+									ast = funcTco.ast;
+									replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
+									continue;
+								}
 							}
-						}
-						
-						// regular function application
-						MalList evaluated = (MalList) eval_ast(inputList, replEnv);
-						MalType funcOrFunctionTco = evaluated.items.get(0);
-						List<MalType> argsSubList = new ArrayList<>(evaluated.items.subList(1, evaluated.items.size()));
-						MalList funcArgs = malTypes.new MalList(argsSubList);
-						if (funcOrFunctionTco instanceof MalFunction) {
-							MalFunction func = (MalFunction) funcOrFunctionTco;
-							return func.apply(funcArgs);
-						} else {
-							FunctionTco funcTco = (FunctionTco) funcOrFunctionTco;
-							ast = funcTco.ast;
-							replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
-							continue;
 						}
 					} else {
 						// vector and pseudo-maps literals evaluate the contents with eval_ast and wrap in square/braces
@@ -190,14 +182,23 @@ public class step6_file {
 		}
 		String defArgv = String.format("(def! *ARGV* (list %s))", String.join(" ", quotedArgs));
 		rp.rep(defArgv);
-		
-		// Local Test
+
+		// Eval
+		MalFunction evalFn = malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType ast = args.items.get(0);
+				return eval(ast, repl_env);
+			}
+		};
+
+		repl_env.data.put(malTypes.new MalSymbol("eval"), evalFn);
 
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
 		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
-		rp.rep("(load-file \"../tests/incA.mal\")");
-		rp.rep("(inc4 1)");
+
+		// Local Test
+		// rp.rep("(eval (read-string \"(+ 2 3)\"))");
 
 		String input;
 		do {
