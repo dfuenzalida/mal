@@ -23,32 +23,32 @@ public class core {
 	static {
 		ns.put("+", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return malTypes.new MalInteger(arg0.value + arg1.value);
 			}
 		});
 
 		ns.put("-", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return malTypes.new MalInteger(arg0.value - arg1.value);
 			}
 		});
 
 		ns.put("*", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return malTypes.new MalInteger(arg0.value * arg1.value);
 			}
 		});
 
 		ns.put("/", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return malTypes.new MalInteger(arg0.value / arg1.value);
 			}
 		});
@@ -95,14 +95,14 @@ public class core {
 
 		ns.put("list?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
+				MalType arg0 = args.nth(0);
 				return (arg0 instanceof MalList && ((MalList)arg0).open.equals("(")) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put("empty?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
+				MalType arg0 = args.nth(0);
 				boolean result = (arg0 instanceof MalList) && ((MalList)arg0).items.size() == 0;
 				return result ? types.MalTrue : types.MalFalse;
 			}
@@ -110,10 +110,10 @@ public class core {
 
 		ns.put("count", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				if (args.items.size() == 0 || args.items.get(0) == types.MalNil) {
+				if (args.items.size() == 0 || args.nth(0) == types.MalNil) {
 					return malTypes.new MalInteger(0);
 				} else {
-					MalList arg0 = (MalList) args.items.get(0);
+					MalList arg0 = (MalList) args.nth(0);
 					return malTypes.new MalInteger(arg0.items.size());
 				}
 			}
@@ -121,8 +121,8 @@ public class core {
 
 		ns.put("=", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
-				MalType arg1 = args.items.get(1);
+				MalType arg0 = args.nth(0);
+				MalType arg1 = args.nth(1);
 				if (arg0 instanceof MalList && arg1 instanceof MalList) {
 					// every element needs to be equal, same length
 					MalList list0 = (MalList) arg0;
@@ -130,8 +130,8 @@ public class core {
 					boolean res = list0.items.size() == list1.items.size();
 					if (res) {
 						for (int i = 0; i < list0.items.size(); i++) {
-							MalType list0i = list0.items.get(i);
-							MalType list1i = list1.items.get(i);
+							MalType list0i = list0.nth(i);
+							MalType list1i = list1.nth(i);
 							if (!list0i.equals(list1i)) {
 								res = false;
 								break;
@@ -148,39 +148,39 @@ public class core {
 
 		ns.put("<", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return (arg0.value < arg1.value) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put("<=", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return (arg0.value <= arg1.value) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put(">", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return (arg0.value > arg1.value) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put(">=", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalInteger arg0 = (MalInteger) args.items.get(0);
-				MalInteger arg1 = (MalInteger) args.items.get(1);
+				MalInteger arg0 = (MalInteger) args.nth(0);
+				MalInteger arg1 = (MalInteger) args.nth(1);
 				return (arg0.value >= arg1.value) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put("read-string", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalString arg0 = (MalString) args.items.get(0);
+				MalString arg0 = (MalString) args.nth(0);
 				return reader.read_str(arg0.value);
 			}
 		});
@@ -188,7 +188,7 @@ public class core {
 		ns.put("slurp", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				try {
-					MalString arg0 = (MalString) args.items.get(0);
+					MalString arg0 = (MalString) args.nth(0);
 					String fileName = arg0.value;
 					String contents = String.join("\n", Files.readAllLines(Paths.get(fileName))) + "\n";
 					return malTypes.new MalString(contents);
@@ -200,37 +200,37 @@ public class core {
 
 		ns.put("atom", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
+				MalType arg0 = args.nth(0);
 				return malTypes.new MalAtom(arg0);
 			}
 		});
 
 		ns.put("atom?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType arg0 = args.items.get(0);
+				MalType arg0 = args.nth(0);
 				return (arg0 instanceof MalAtom) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
 		ns.put("deref", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalAtom arg0 = (MalAtom) args.items.get(0);
+				MalAtom arg0 = (MalAtom) args.nth(0);
 				return arg0.value;
 			}
 		});
 
 		ns.put("reset!", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalAtom arg0 = (MalAtom) args.items.get(0);
-				MalType arg1 = args.items.get(1);
+				MalAtom arg0 = (MalAtom) args.nth(0);
+				MalType arg1 = args.nth(1);
 				return arg0.value = arg1;
 			}
 		});
 
 		ns.put("swap!", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalAtom atom = (MalAtom) args.items.get(0);
-				MalType fnOrFunctionTco = args.items.get(1);
+				MalAtom atom = (MalAtom) args.nth(0);
+				MalType fnOrFunctionTco = args.nth(1);
 				List<MalType> fnArgs = new ArrayList<>();
 				fnArgs.add(atom.value);
 				if (args.items.size() > 2) { fnArgs.addAll(args.items.subList(2, args.items.size())); }

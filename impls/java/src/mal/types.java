@@ -49,6 +49,10 @@ public class types {
 			this.close = close;
 		}
 
+		public MalType nth(Integer index) {
+			return this.items.get(index);
+		}
+
 		public String toString(boolean print_readably) {
 			List<String> strItems = items.stream().map(i -> i.toString(print_readably)).collect(Collectors.toList());
 			String joined = String.join(" ", strItems);
