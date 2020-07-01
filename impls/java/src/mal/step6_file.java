@@ -28,6 +28,11 @@ public class step6_file {
 				return eval_ast(ast, replEnv);
 			} else {
 				MalList inputList = (MalList) ast;
+				// Remove the instances of MalComment
+				List<MalType> actualItems = inputList.items.stream()
+						.filter(it -> it != types.MalComment)
+						.collect(Collectors.toList());
+				inputList.items = actualItems;
 				if (inputList.items.isEmpty()) {
 					return ast;
 				} else {
@@ -202,7 +207,6 @@ public class step6_file {
 		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
 
 		// Local Test
-		// rp.rep("(eval (read-string \"(+ 2 3)\"))");
 
 		String input;
 		do {
