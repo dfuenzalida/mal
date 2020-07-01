@@ -157,7 +157,11 @@ public class step6_file {
 		try {
 			MalType afterRead = reader.read_str(input);
 			MalType afterEval = eval(afterRead, repl_env);
-			return printer.pr_str(afterEval, true);
+			if (afterEval == types.MalComment) {
+				return null; // don't print a result in the main loop
+			} else {
+				return printer.pr_str(afterEval, true);
+			}
 		} catch (RepException rex) {
 			return rex.getMessage();
 		} catch (Exception e) {

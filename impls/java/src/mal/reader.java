@@ -101,7 +101,7 @@ public class reader {
 		} else if ("nil".equals(token)) {
 			return types.MalNil;
 		} else if (token.startsWith(";")) {
-			throw new types().new RepException(null);
+			return types.MalComment; // special value that won't print a result in the main loop
 		} else if ("true".equals(token)) {
 			return types.MalTrue;
 		} else if ("false".equals(token)) {

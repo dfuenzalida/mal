@@ -16,6 +16,12 @@ public class types {
 		}
 	}
 
+	public static MalType MalComment = new types().new MalType() {
+		public String toString(boolean print_readably) {
+			return "";
+		}
+	};
+
 	public static MalType MalNil = new types().new MalType() {
 		public String toString(boolean print_readably) {
 			return "nil";
