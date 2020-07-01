@@ -177,22 +177,7 @@ public class step6_file {
 	public static void main(String... args) {
 		step6_file rp = new step6_file();
 
-		if (args.length > 0) {
-			String fileName = args[0];
-			rp.rep(String.format("(load-file \"%s\")", fileName));
-		}
-
-		// load the rest of the args as *ARGV*
-		List<String> quotedArgs = Collections.emptyList();
-		if (args.length > 1) {
-			quotedArgs = Arrays.asList(args).subList(1, args.length).stream()
-					.map(a -> String.format("\"%s\"", a))
-					.collect(Collectors.toList());
-		}
-		String defArgv = String.format("(def! *ARGV* (list %s))", String.join(" ", quotedArgs));
-		rp.rep(defArgv);
-
-		// Eval
+		// Define `eval`
 		MalFunction evalFn = malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType ast = args.items.get(0);
@@ -205,6 +190,24 @@ public class step6_file {
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
 		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
+
+		// If there's command line arguments:
+		// - load the the args after the first as *ARGV*
+		List<String> quotedArgs = Collections.emptyList();
+		if (args.length > 1) {
+			quotedArgs = Arrays.asList(args).subList(1, args.length).stream()
+					.map(a -> String.format("\"%s\"", a))
+					.collect(Collectors.toList());
+		}
+		String defArgv = String.format("(def! *ARGV* (list %s))", String.join(" ", quotedArgs));
+		rp.rep(defArgv);
+
+		// use the first one as a script name to load with load-file, then exit
+		if (args.length > 0) {
+			String fileName = args[0];
+			rp.rep(String.format("(load-file \"%s\")", fileName));
+			System.exit(0); // terminate execution after loading the script
+		}
 
 		// Local Test
 
