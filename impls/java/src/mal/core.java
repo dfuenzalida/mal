@@ -251,5 +251,26 @@ public class core {
 			}
 		});
 
+		ns.put("cons", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				MalList arg1 = (MalList) args.nth(1);
+				List<MalType> consList = new ArrayList<>();
+				consList.add(arg0);
+				consList.addAll(arg1.items);
+				return malTypes.new MalList(consList);
+			}
+		});
+
+		ns.put("concat", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				List<MalType> concatList = new ArrayList<>();
+				for (MalType list: args.items) {
+					concatList.addAll(((MalList) list).items); 
+				}
+				return malTypes.new MalList(concatList);
+			}
+		});
+
 	};
 }
