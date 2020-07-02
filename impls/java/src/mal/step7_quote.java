@@ -117,8 +117,64 @@ public class step7_quote {
 								};
 								return malTypes.new FunctionTco(expr, binds, replEnv, fn);
 							} else if (firstSymbol.name.equals("quote")) {
-								MalType arg = inputList.nth(1);
-								return arg;
+								MalType astArg = inputList.nth(1);
+								return astArg;
+							} else if (firstSymbol.name.equals("quasiquote")) {
+								MalType astArg = inputList.nth(1);
+								if (!is_pair(astArg)) { // case i
+									List<MalType> items = new ArrayList<>();
+									items.add(malTypes.new MalSymbol("quote"));
+									items.add(astArg);
+									ast = malTypes.new MalList(items);
+									continue;
+								} else {
+									MalList astList = (MalList) astArg;
+
+									// case ii
+									if (astList.nth(0) instanceof MalSymbol) {
+										MalSymbol first = (MalSymbol) astList.nth(0);
+										if (first.name.equals("unquote")) {
+											ast = astList.nth(1);
+											continue;
+										}
+									}
+									// case iii
+									if (is_pair(astList.nth(0))) {
+										MalList firstList = (MalList) astList.nth(0);
+										MalType firstFirst = firstList.nth(0);
+										if (firstFirst instanceof MalSymbol && ((MalSymbol)firstFirst).name.equals("splice-unquote")) {
+											List<MalType> result = new ArrayList<>();
+											result.add(malTypes.new MalSymbol("concat"));
+											result.add(firstList.nth(1));
+
+											List<MalType> secondThroughLast = new ArrayList<>();
+											secondThroughLast.add(malTypes.new MalSymbol("quasiquote"));
+											secondThroughLast.addAll(firstList.items.subList(1, firstList.items.size()));
+											MalType secThroughLastRes = eval(malTypes.new MalList(secondThroughLast), replEnv);
+											result.add(secThroughLastRes);
+											ast = malTypes.new MalList(result);
+											continue;
+										}
+									// case iv
+									} else {
+										List<MalType> result = new ArrayList<>();
+										result.add(malTypes.new MalSymbol("cons"));
+
+										List<MalType> firstQQ = new ArrayList<>();
+										firstQQ.add(malTypes.new MalSymbol("quasiquote"));
+										firstQQ.add(astList.nth(0));
+										MalType firstQQres = eval(malTypes.new MalList(firstQQ), replEnv);
+										result.add(firstQQres);
+
+										List<MalType> secondQQ = new ArrayList<>();
+										secondQQ.add(malTypes.new MalSymbol("quasiquote"));
+										secondQQ.addAll(astList.items.subList(1, astList.items.size()));
+										MalType secondQQres = eval(malTypes.new MalList(secondQQ), replEnv);
+										result.add(secondQQres);
+										ast = malTypes.new MalList(result);
+										continue;
+									}
+								}
 							} else {
 								// regular function application
 								MalList evaluated = (MalList) eval_ast(inputList, replEnv);
@@ -146,6 +202,10 @@ public class step7_quote {
 				}
 			}
 		}
+	}
+
+	private static boolean is_pair(MalType param) {
+		return param instanceof MalList && ((MalList)param).items.size() > 0;
 	}
 
 	public static MalType eval_ast(MalType ast, env replEnv) {
