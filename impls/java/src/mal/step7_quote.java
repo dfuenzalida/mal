@@ -116,6 +116,9 @@ public class step7_quote {
 									}
 								};
 								return malTypes.new FunctionTco(expr, binds, replEnv, fn);
+							} else if (firstSymbol.name.equals("quote")) {
+								MalType arg = inputList.nth(1);
+								return arg;
 							} else {
 								// regular function application
 								MalList evaluated = (MalList) eval_ast(inputList, replEnv);
