@@ -155,25 +155,28 @@ public class step7_quote {
 											ast = malTypes.new MalList(result);
 											continue;
 										}
-									// case iv
-									} else {
-										List<MalType> result = new ArrayList<>();
-										result.add(malTypes.new MalSymbol("cons"));
-
-										List<MalType> firstQQ = new ArrayList<>();
-										firstQQ.add(malTypes.new MalSymbol("quasiquote"));
-										firstQQ.add(astList.nth(0));
-										MalType firstQQres = eval(malTypes.new MalList(firstQQ), replEnv);
-										result.add(firstQQres);
-
-										List<MalType> secondQQ = new ArrayList<>();
-										secondQQ.add(malTypes.new MalSymbol("quasiquote"));
-										secondQQ.addAll(astList.items.subList(1, astList.items.size()));
-										MalType secondQQres = eval(malTypes.new MalList(secondQQ), replEnv);
-										result.add(secondQQres);
-										ast = malTypes.new MalList(result);
-										continue;
 									}
+
+									// case iv - default if none of the above matched
+									List<MalType> result = new ArrayList<>();
+									result.add(malTypes.new MalSymbol("cons"));
+
+									List<MalType> firstQQ = new ArrayList<>();
+									firstQQ.add(malTypes.new MalSymbol("quasiquote"));
+									firstQQ.add(astList.nth(0));
+									MalType firstQQres = eval(malTypes.new MalList(firstQQ), replEnv);
+									result.add(firstQQres);
+
+									List<MalType> secondQQ = new ArrayList<>();
+									secondQQ.add(malTypes.new MalSymbol("quasiquote"));
+									List<MalType> secondQQarg = new ArrayList<>();
+									secondQQarg.addAll(astList.items.subList(1, astList.items.size()));
+									MalList secondQQargList = malTypes.new MalList(secondQQarg);
+									secondQQ.add(secondQQargList);
+									MalType secondQQres = eval(malTypes.new MalList(secondQQ), replEnv);
+									result.add(secondQQres);
+									ast = malTypes.new MalList(result);
+									continue;
 								}
 							} else {
 								// regular function application
@@ -190,6 +193,9 @@ public class step7_quote {
 									continue;
 								}
 							}
+						} else {
+							// it's a list of Symbols, numbers or strings ... just return it?
+							return ast;
 						}
 					} else {
 						// vector and pseudo-maps literals evaluate the contents with eval_ast and wrap in square/braces
@@ -204,7 +210,7 @@ public class step7_quote {
 		}
 	}
 
-	private static boolean is_pair(MalType param) {
+	private static boolean is_pair(MalType param) { // is a non-empty list
 		return param instanceof MalList && ((MalList)param).items.size() > 0;
 	}
 
@@ -273,6 +279,7 @@ public class step7_quote {
 		}
 
 		// Local Tests
+		// rp.rep("(quasiquote ((1)))");
 
 		// Main loop
 		String input;
