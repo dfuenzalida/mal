@@ -53,7 +53,7 @@ public class step8_macros {
 							} else if (firstSymbol.name.equals("defmacro!")) {
 								MalSymbol key = (MalSymbol) inputList.nth(1);
 								MalType value = inputList.nth(2);
-								MalFunction macro = (MalFunction) eval(value, replEnv);
+								FunctionTco macro = (FunctionTco) eval(value, replEnv);
 								macro.is_macro = true;
 								replEnv.set(key, macro);
 								return macro;
@@ -152,6 +152,21 @@ public class step8_macros {
 								}
 							}
 						} else {
+							// inline function application case, eg. "((fn* () 1))"
+							if (firstUnevaluated instanceof MalList) {
+								MalList firstList = (MalList) firstUnevaluated;
+								MalType firstEvaluated = eval(firstList, replEnv);
+								List<MalType> updated = new ArrayList<>();
+								updated.add(firstEvaluated);
+								updated.addAll(inputList.items.subList(1, inputList.items.size()));
+								return eval(malTypes.new MalList(updated), replEnv);
+							} else if (firstUnevaluated instanceof FunctionTco) {
+								FunctionTco funcTco = (FunctionTco) firstUnevaluated;
+								MalList funcArgs = malTypes.new MalList(inputList.items.subList(1, inputList.items.size()));
+								ast = funcTco.ast;
+								replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
+								continue;
+							}
 							// it's a list of Symbols, numbers or strings ... just return it?
 							return ast;
 						}
@@ -223,11 +238,15 @@ public class step8_macros {
 	private static boolean is_macro_call(MalType ast, env replEnv) {
 		if (ast instanceof MalList) {
 			MalList astList = (MalList) ast;
-			MalType first = astList.nth(0);
-			if (first instanceof MalSymbol) {
-				MalType resolved = eval(first, replEnv);
-				if (resolved instanceof MalFunction) {
-					return ((MalFunction)resolved).is_macro;
+			if (!astList.items.isEmpty()) {
+				MalType first = astList.nth(0);
+				if (first instanceof MalSymbol) {
+					if (replEnv.data.containsKey(first)) {
+						MalType resolved = replEnv.get((MalSymbol) first);
+						if (resolved instanceof MalFunction) {
+							return ((MalFunction)resolved).is_macro;
+						}
+					}
 				}
 			}
 		}
@@ -235,7 +254,7 @@ public class step8_macros {
 	}
 
 	private static MalType macroexpand(MalType ast, env replEnv) {
-		boolean is_macro = is_macro_call(ast, replEnv);;
+		boolean is_macro = is_macro_call(ast, replEnv);
 		while (is_macro) {
 			MalList astList = (MalList) ast;
 			MalFunction fn = (MalFunction) replEnv.get((MalSymbol) astList.nth(0));
@@ -292,6 +311,7 @@ public class step8_macros {
 		// Functions defined in MAL itself
 		rp.rep("(def! not (fn* (a) (if a false true)))"); // (not <expr>)
 		rp.rep("(def! load-file (fn* (f) (eval (read-string (str \"(do \" (slurp f) \"\\nnil)\")))))");
+		rp.rep("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))");
 
 		// If there's command line arguments:
 		// - load the the args after the first as *ARGV*

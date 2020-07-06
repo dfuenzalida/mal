@@ -188,6 +188,7 @@ public class types {
 		public MalList params;
 		public env functionEnv;
 		public MalFunction fn;
+		public boolean is_macro = false;
 
 		public FunctionTco(MalType ast, MalList params, env functionEnv, MalFunction fn) {
 			this.ast = ast;
