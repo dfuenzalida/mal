@@ -185,7 +185,7 @@ public class step7_quote {
 					result.add(firstList.nth(1));
 
 					List<MalType> secondThroughLast = new ArrayList<>();
-					secondThroughLast.addAll(firstList.items.subList(1, firstList.items.size()));
+					secondThroughLast.addAll(astList.items.subList(1, firstList.items.size()));
 					result.add(quasiquote(malTypes.new MalList(secondThroughLast)));
 
 					return malTypes.new MalList(result);
