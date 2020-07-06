@@ -166,6 +166,8 @@ public class types {
 
 
 	public abstract class MalFunction extends MalType {
+		public boolean is_macro = false;
+
 		abstract MalType apply(MalList args);
 
 		public String toString(boolean print_readably) {
