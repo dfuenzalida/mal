@@ -3,6 +3,7 @@ package mal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -269,6 +270,42 @@ public class core {
 					concatList.addAll(((MalList) list).items); 
 				}
 				return malTypes.new MalList(concatList);
+			}
+		});
+
+		ns.put("nth", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				try {
+					MalList arg0 = (MalList) args.nth(0);
+					MalInteger arg1 = (MalInteger) args.nth(1);
+					return arg0.nth(arg1.value);
+				} catch (Exception ex) {
+					throw malTypes.new RepException("Cannot call nth on " + args.nth(0));
+				}
+			}
+		});
+
+		ns.put("first", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				if (args.nth(0) == types.MalNil) return types.MalNil;
+				MalList arg0 = (MalList) args.nth(0);
+				if (arg0.items.isEmpty()) return types.MalNil;
+				return arg0.nth(0);
+			}
+		});
+
+		ns.put("rest", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				if (args.nth(0) == types.MalNil) {
+					return malTypes.new MalList(Collections.emptyList());
+				}
+				MalList arg0 = (MalList) args.nth(0);
+				if (arg0.items.isEmpty()) {
+					return malTypes.new MalList(Collections.emptyList());
+				}
+				List<MalType> rest = new ArrayList<>();
+				rest.addAll(arg0.items.subList(1, arg0.items.size()));
+				return malTypes.new MalList(rest);
 			}
 		});
 
