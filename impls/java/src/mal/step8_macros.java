@@ -33,10 +33,7 @@ public class step8_macros {
 				}
 				MalList inputList = (MalList) ast;
 				// Remove the instances of MalComment
-				List<MalType> actualItems = inputList.items.stream()
-						.filter(it -> it != types.MalComment)
-						.collect(Collectors.toList());
-				inputList.items = actualItems;
+				inputList = removeComments(inputList);
 				if (inputList.items.isEmpty()) {
 					return ast;
 				} else {
@@ -100,29 +97,8 @@ public class step8_macros {
 								MalType expr = inputList.nth(2);
 								MalFunction fn = malTypes.new MalFunction() {
 									MalType apply(MalList args) {
-										// Copy the lists binds and args lists around, if one of the 'binds' is '&'
-										// capture every args afterwards as a list
-										MalList bindsNew = malTypes.new MalList(new ArrayList<>());
-										MalList argsNew = malTypes.new MalList(new ArrayList<>());
-										for (int i = 0; i < binds.items.size(); i++) {
-											MalSymbol bindsi = (MalSymbol) binds.nth(i);
-											MalType argsi = (i < args.items.size()) ? args.nth(i) : types.MalNil;
-											if (bindsi.name.equals("&")) {
-												bindsi = (MalSymbol) binds.nth(i + 1); // & more
-												if (i < args.items.size()) {
-													argsi = malTypes.new MalList(args.items.subList(i, args.items.size()));
-												} else {
-													argsi = malTypes.new MalList(new ArrayList<>());
-												}
-												bindsNew.items.add(bindsi);
-												argsNew.items.add(argsi);
-												break;
-											} else {
-												bindsNew.items.add(bindsi);
-												argsNew.items.add(argsi);
-											}
-										}
-										env newEnv = new env(replEnvCopy, bindsNew, argsNew);
+										MalList[] bindsArgs = bindArgs(binds, args);
+										env newEnv = new env(replEnvCopy, bindsArgs[0], bindsArgs[1]);
 										return eval(expr, newEnv);
 									}
 								};
@@ -147,7 +123,9 @@ public class step8_macros {
 								} else {
 									FunctionTco funcTco = (FunctionTco) funcOrFunctionTco;
 									ast = funcTco.ast;
-									replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
+									MalList funcTcoParams = funcTco.params;
+									MalList[] bindsArgs = bindArgs(funcTcoParams, funcArgs);
+									replEnv = new env(funcTco.functionEnv, bindsArgs[0], bindsArgs[1]);
 									continue;
 								}
 							}
@@ -164,7 +142,9 @@ public class step8_macros {
 								FunctionTco funcTco = (FunctionTco) firstUnevaluated;
 								MalList funcArgs = malTypes.new MalList(inputList.items.subList(1, inputList.items.size()));
 								ast = funcTco.ast;
-								replEnv = new env(funcTco.functionEnv, funcTco.params, funcArgs);
+								MalList funcTcoParams = funcTco.params;
+								MalList[] bindsArgs = bindArgs(funcTcoParams, funcArgs);
+								replEnv = new env(funcTco.functionEnv, bindsArgs[0], bindsArgs[1]);
 								continue;
 							}
 							// it's a list of Symbols, numbers or strings ... just return it?
@@ -181,6 +161,40 @@ public class step8_macros {
 				}
 			}
 		}
+	}
+
+	private static MalList removeComments(MalList inputList) {
+		List<MalType> actualItems = inputList.items.stream()
+				.filter(it -> it != types.MalComment)
+				.collect(Collectors.toList());
+		inputList.items = actualItems;
+		return inputList;
+	}
+
+	private static MalList[] bindArgs(MalList binds, MalList args) {
+		// Copy the lists binds and args lists around, if one of the 'binds' is '&'
+		// capture every args afterwards as a list
+		MalList bindsNew = malTypes.new MalList(new ArrayList<>());
+		MalList argsNew = malTypes.new MalList(new ArrayList<>());
+		for (int i = 0; i < binds.items.size(); i++) {
+			MalSymbol bindsi = (MalSymbol) binds.nth(i);
+			MalType argsi = (i < args.items.size()) ? args.nth(i) : types.MalNil;
+			if (bindsi.name.equals("&")) {
+				bindsi = (MalSymbol) binds.nth(i + 1); // & more
+				if (i < args.items.size()) {
+					argsi = malTypes.new MalList(args.items.subList(i, args.items.size()));
+				} else {
+					argsi = malTypes.new MalList(new ArrayList<>());
+				}
+				bindsNew.items.add(bindsi);
+				argsNew.items.add(argsi);
+				break;
+			} else {
+				bindsNew.items.add(bindsi);
+				argsNew.items.add(argsi);
+			}
+		}
+		return new MalList[] { bindsNew, argsNew };
 	}
 
 	private static boolean is_pair(MalType param) { // is a non-empty list
