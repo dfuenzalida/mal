@@ -243,6 +243,10 @@ public class step8_macros {
 				if (first instanceof MalSymbol) {
 					if (replEnv.data.containsKey(first)) {
 						MalType resolved = replEnv.get((MalSymbol) first);
+						if (resolved instanceof FunctionTco) {
+							return ((FunctionTco)resolved).is_macro;
+						}
+
 						if (resolved instanceof MalFunction) {
 							return ((MalFunction)resolved).is_macro;
 						}
@@ -257,11 +261,12 @@ public class step8_macros {
 		boolean is_macro = is_macro_call(ast, replEnv);
 		while (is_macro) {
 			MalList astList = (MalList) ast;
-			MalFunction fn = (MalFunction) replEnv.get((MalSymbol) astList.nth(0));
+			FunctionTco fnTco = (FunctionTco) replEnv.get((MalSymbol) astList.nth(0));
+			MalFunction fn = fnTco.fn;
 			List<MalType> fnArgs = new ArrayList<>();
 			fnArgs.addAll(astList.items.subList(1, astList.items.size()));
 			ast = fn.apply(malTypes.new MalList(fnArgs));
-			is_macro = is_macro_call(ast, replEnv);
+			is_macro = is_macro_call(ast, replEnv); // maybe fnTco.functionEnv ?
 		}
 		return ast;
 	}
