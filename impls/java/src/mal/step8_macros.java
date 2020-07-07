@@ -255,7 +255,7 @@ public class step8_macros {
 			if (!astList.items.isEmpty()) {
 				MalType first = astList.nth(0);
 				if (first instanceof MalSymbol) {
-					if (replEnv.data.containsKey(first)) {
+					try {
 						MalType resolved = replEnv.get((MalSymbol) first);
 						if (resolved instanceof FunctionTco) {
 							return ((FunctionTco)resolved).is_macro;
@@ -264,6 +264,8 @@ public class step8_macros {
 						if (resolved instanceof MalFunction) {
 							return ((MalFunction)resolved).is_macro;
 						}
+					} catch (Exception ex) {
+						return false;
 					}
 				}
 			}
