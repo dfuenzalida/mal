@@ -416,5 +416,33 @@ public class core {
 			}
 		});
 
+		ns.put("vector", malTypes.new MalFunction() { // poor man's vector
+			MalType apply(MalList args) {
+				args.open = "[";
+				args.close = "]";
+				return args;
+			}
+		});
+
+		ns.put("vector?", malTypes.new MalFunction() { // poor man's vector
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				boolean isVector = (arg0 instanceof MalList && ((MalList)arg0).open.equals("[") && ((MalList)arg0).close.equals("]"));
+				return isVector ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("sequential?", malTypes.new MalFunction() { // poor man's vector
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				boolean isSequential = false;
+				if (arg0 instanceof MalList) {
+					MalList arg0List = (MalList) arg0;
+					isSequential = ("[(".contains(arg0List.open) && "])".contains(arg0List.close));
+				}
+				return isSequential ? types.MalTrue : types.MalFalse;
+			}
+		});
+
 	};
 }
