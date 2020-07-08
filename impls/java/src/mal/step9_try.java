@@ -10,7 +10,6 @@ import mal.types.FunctionTco;
 import mal.types.MalException;
 import mal.types.MalFunction;
 import mal.types.MalList;
-import mal.types.MalString;
 import mal.types.MalSymbol;
 import mal.types.MalType;
 import mal.types.RepException;

@@ -16,6 +16,7 @@ import mal.types.MalFunction;
 import mal.types.MalInteger;
 import mal.types.MalList;
 import mal.types.MalString;
+import mal.types.MalSymbol;
 import mal.types.MalType;
 
 public class core {
@@ -362,5 +363,35 @@ public class core {
 				return malTypes.new MalList(vals);
 			}
 		});
+
+		ns.put("nil?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 == types.MalNil) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("true?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 == types.MalTrue) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("false?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				boolean isFalse = (arg0 == types.MalNil || arg0 == types.MalFalse);
+				return isFalse ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("symbol?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalSymbol)? types.MalTrue : types.MalFalse;
+			}
+		});
+
 	};
 }
