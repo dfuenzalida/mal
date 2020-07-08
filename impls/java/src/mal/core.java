@@ -309,5 +309,11 @@ public class core {
 			}
 		});
 
+		ns.put("throw", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				throw malTypes.new MalException(arg0);
+			}
+		});
 	};
 }

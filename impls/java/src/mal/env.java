@@ -32,7 +32,7 @@ public class env {
 			return this;
 		} else {
 			if (outer == null) {
-				throw new types().new RepException(String.format("'%s' not found on any environment", key.name));
+				throw new types().new RepException(String.format("'%s' not found", key.name));
 			} else {
 				return this.outer.find(key);
 			}
@@ -42,7 +42,7 @@ public class env {
 	public MalType get(MalSymbol key) {
 		env env = this.find(key);
 		if (env == null) {
-			throw new RuntimeException(String.format("'%s' not found in any environment", key));
+			throw new RuntimeException(String.format("'%s' not found", key));
 		} else {
 			return env.data.get(key);
 		}

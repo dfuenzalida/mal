@@ -217,4 +217,12 @@ public class types {
 			return this.toString(true);
 		}
 	}
+
+	public class MalException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		public MalType value;
+		public MalException(MalType value) {
+			this.value = value;
+		}
+	}
 }
