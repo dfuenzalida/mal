@@ -14,6 +14,7 @@ import mal.types.FunctionTco;
 import mal.types.MalAtom;
 import mal.types.MalFunction;
 import mal.types.MalInteger;
+import mal.types.MalKeyword;
 import mal.types.MalList;
 import mal.types.MalString;
 import mal.types.MalSymbol;
@@ -390,6 +391,28 @@ public class core {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				return (arg0 instanceof MalSymbol)? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("symbol", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalString arg0 = (MalString) args.nth(0);
+				return malTypes.new MalSymbol(arg0.value);
+			}
+		});
+
+		ns.put("keyword?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalKeyword)? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("keyword", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				if (arg0 instanceof MalKeyword) return arg0;
+				return malTypes.new MalKeyword(((MalString)arg0).value);
 			}
 		});
 
