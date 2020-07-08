@@ -3,6 +3,7 @@ package mal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -314,6 +315,51 @@ public class core {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				throw malTypes.new MalException(arg0);
+			}
+		});
+
+		ns.put("apply", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType fnOrFunctionTco = args.nth(0);
+				List<MalType> fnArgs = new ArrayList<>();
+				for (Integer i = 1; i < args.items.size() - 1; i++) {
+					fnArgs.add(args.nth(i));
+				}
+				MalType lastArg = args.items.get(args.items.size() - 1);
+				if (lastArg instanceof MalList) {
+					fnArgs.addAll(((MalList) lastArg).items);
+				} else {
+					fnArgs.add(lastArg);
+				}
+
+				MalFunction fn;
+				if (fnOrFunctionTco instanceof MalFunction) {
+					fn = (MalFunction) fnOrFunctionTco;
+				} else {
+					fn = ((FunctionTco) fnOrFunctionTco).fn;
+				}
+				return fn.apply(malTypes.new MalList(fnArgs));
+			}
+		});
+
+		ns.put("map", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType fnOrFunctionTco = args.nth(0);
+				MalList coll = (MalList) args.nth(1);
+				MalFunction fn;
+				if (fnOrFunctionTco instanceof MalFunction) {
+					fn = (MalFunction) fnOrFunctionTco;
+				} else {
+					fn = ((FunctionTco) fnOrFunctionTco).fn;
+				}
+
+				List<MalType> vals = new ArrayList<>();
+				for (MalType val: coll.items) {
+					MalList fnArgs = malTypes.new MalList(Arrays.asList(val));
+					vals.add(fn.apply(fnArgs));
+				}
+
+				return malTypes.new MalList(vals);
 			}
 		});
 	};
