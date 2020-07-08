@@ -280,7 +280,8 @@ public class core {
 					MalInteger arg1 = (MalInteger) args.nth(1);
 					return arg0.nth(arg1.value);
 				} catch (Exception ex) {
-					throw malTypes.new RepException("Cannot call nth on " + args.nth(0));
+					String err = "Invalid range when calling nth: " + args.nth(0);
+					throw malTypes.new MalException(malTypes.new MalString(err));
 				}
 			}
 		});

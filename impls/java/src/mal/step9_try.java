@@ -119,8 +119,8 @@ public class step9_try {
 								try {
 									MalType tryResult = eval(tryExpr, replEnv);
 									return tryResult;
-								} catch (MalException e) {
-									MalString cause = malTypes.new MalString(e.getMessage());
+								} catch (MalException mex) {
+									MalType cause = mex.value;
 									MalList catchBlock = (MalList) inputList.nth(2);
 									// TODO check that catchBlock.nth(0) is the MalSymbol "catch*"
 									MalSymbol exName = (MalSymbol) catchBlock.nth(1);
