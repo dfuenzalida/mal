@@ -1,5 +1,8 @@
 package mal;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,6 +13,7 @@ public class types {
 
 	public abstract class MalType {
 		public abstract String toString(boolean print_readably);
+		public abstract int hashCode();
 
 		public String toString() {
 			return this.toString(true);
@@ -19,6 +23,10 @@ public class types {
 	public static MalType MalComment = new types().new MalType() {
 		public String toString(boolean print_readably) {
 			return "";
+		}
+
+		public int hashCode() {
+			return 0;
 		}
 	};
 
@@ -30,6 +38,10 @@ public class types {
 		public boolean equals(Object obj) {
 			return (obj == types.MalNil);
 		}
+
+		public int hashCode() {
+			return 1;
+		}
 	};
 
 	public class MalList extends MalType {
@@ -37,8 +49,8 @@ public class types {
 		public String open;
 		public String close;
 	
-		public MalList(List<MalType> items) {
-			this.items = items;
+		public MalList(Collection<MalType> items) {
+			this.items = new ArrayList<>(items);
 			this.open = "(";
 			this.close = ")";
 		}
@@ -70,6 +82,10 @@ public class types {
 			}
 			return true;
 		}
+
+		public int hashCode() {
+			return this.items.hashCode();
+		}
 	}
 	
 	public class MalInteger extends MalType {
@@ -84,6 +100,10 @@ public class types {
 
 		public boolean equals(Object obj) {
 			return obj instanceof MalInteger && ((MalInteger)obj).value.equals(this.value);
+		}
+
+		public int hashCode() {
+			return this.value.hashCode();
 		}
 	}
 
@@ -106,6 +126,10 @@ public class types {
 			}
 		}
 
+		public int hashCode() {
+			return value.hashCode();
+		}
+
 		public boolean equals(Object obj) {
 			return obj instanceof MalString && ((MalString)obj).value.equals(this.value);
 		}
@@ -119,6 +143,10 @@ public class types {
 
 		public String toString(boolean print_readably) {
 			return String.format(":%s", name);
+		}
+
+		public int hashCode() {
+			return this.toString().hashCode();
 		}
 
 		public boolean equals(Object obj) {
@@ -147,7 +175,7 @@ public class types {
 	}
 
 	public class MalBoolean extends MalType {
-		public boolean value;
+		public Boolean value;
 		MalBoolean(boolean value) {
 			this.value = value;
 		}
@@ -158,6 +186,10 @@ public class types {
 
 		public boolean equals(Object obj) {
 			return (obj instanceof MalBoolean) && ((MalBoolean) obj).value == this.value;
+		}
+
+		public int hashCode() {
+			return this.value.hashCode();
 		}
 	}
 
@@ -172,6 +204,10 @@ public class types {
 
 		public String toString(boolean print_readably) {
 			return "#<function>";
+		}
+
+		public int hashCode() {
+			return 16384;
 		}
 	}
 
@@ -200,6 +236,10 @@ public class types {
 		public String toString(boolean print_readably) {
 			return "#<functionTco>";
 		}
+
+		public int hashCode() {
+			return ast.hashCode() ^ params.hashCode() ^ fn.hashCode();
+		}
 	}
 
 	public class MalAtom extends MalType {
@@ -216,6 +256,10 @@ public class types {
 		public String toString() {
 			return this.toString(true);
 		}
+
+		public int hashCode() {
+			return this.value.hashCode() + 1;
+		}
 	}
 
 	public class MalException extends RuntimeException {
@@ -223,6 +267,38 @@ public class types {
 		public MalType value;
 		public MalException(MalType value) {
 			this.value = value;
+		}
+	}
+
+	public class MalHashMap extends MalType {
+		public HashMap<MalType, MalType> pairs = new HashMap<>();
+
+		public MalHashMap(Map<MalType, MalType> kvs) {
+			pairs.putAll(kvs);
+		}
+
+		public boolean equals(Object obj) {
+			return (obj instanceof MalHashMap) && this.pairs.equals(((MalHashMap) obj).pairs);
+		}
+
+		public String toString() {
+			return toString(true);
+		}
+
+		public String toString(boolean readably) {
+			StringBuffer output = new StringBuffer();
+			output.append("{");
+			List<String> printedPairs = pairs.entrySet().stream()
+				.map(e -> String.format("%s %s", e.getKey().toString(readably), e.getValue().toString(readably)))
+				.collect(Collectors.toList());
+			output.append(String.join(" ", printedPairs));
+			output.append("}");
+			return output.toString();
+		}
+
+
+		public int hashCode() {
+			return pairs.hashCode();
 		}
 	}
 }

@@ -120,6 +120,7 @@ public class step9_try {
 									return tryResult;
 								} catch (MalException mex) {
 									MalType cause = mex.value;
+									if (inputList.items.size() < 3) throw mex; // if catch* is missing
 									MalList catchBlock = (MalList) inputList.nth(2);
 									// TODO check that catchBlock.nth(0) is the MalSymbol "catch*"
 									MalSymbol exName = (MalSymbol) catchBlock.nth(1);

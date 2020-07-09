@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import mal.types.MalList;
+import mal.types.MalSymbol;
 import mal.types.MalType;
 
 public class reader {
@@ -52,8 +53,10 @@ public class reader {
 	}
 	
 	public static MalType read_form(reader myReader) {
-		if ("([{".contains(myReader.peek())) {
+		if ("([".contains(myReader.peek())) {
 			return read_list(myReader);
+		} else if ("{".equals(myReader.peek())) {
+			return read_hashmap(myReader);
 		} else {
 			return read_atom(myReader);
 		}
@@ -132,7 +135,7 @@ public class reader {
 	}
 
 	private static MalList read_list(reader myReader) {
-		String openToken = myReader.next();		
+		String openToken = myReader.next();
 		String closeToken = ")";
 		switch (openToken) {
 			case "[":
@@ -153,4 +156,18 @@ public class reader {
 		return malTypes.new MalList(items, openToken, closeToken);
 	}
 
+	private static MalList read_hashmap(reader myReader) {
+		myReader.next(); // drop the open bracket
+		String closeToken = "}";
+		List<MalType> items = new ArrayList<>();
+		while (!closeToken.equals(myReader.peek())) {
+			items.add(read_form(myReader));
+		}
+		myReader.next(); // consume the closing token
+
+		MalSymbol hashmap = malTypes.new MalSymbol("hash-map");
+		MalList list = malTypes.new MalList(Arrays.asList(hashmap));
+		list.items.addAll(items);
+		return list;
+	}
 }

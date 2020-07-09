@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import mal.types.FunctionTco;
 import mal.types.MalAtom;
 import mal.types.MalFunction;
+import mal.types.MalHashMap;
 import mal.types.MalInteger;
 import mal.types.MalKeyword;
 import mal.types.MalList;
@@ -441,6 +442,81 @@ public class core {
 					isSequential = ("[(".contains(arg0List.open) && "])".contains(arg0List.close));
 				}
 				return isSequential ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("hash-map", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap result = malTypes.new MalHashMap(Collections.emptyMap());
+				for (Integer i = 0; i < args.items.size() - 1; i += 2) {
+					MalType key = args.nth(i);
+					MalType val = args.nth(i + 1);
+					result.pairs.put(key, val);
+				}
+				return result;
+			}
+		});
+
+		ns.put("map?", malTypes.new MalFunction() { // poor man's vector
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalHashMap) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("assoc", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap source = (MalHashMap) args.nth(0);
+				MalHashMap result = malTypes.new MalHashMap(source.pairs);
+				for (Integer i = 1; i < args.items.size() - 1; i += 2) {
+					MalType key = args.nth(i);
+					MalType val = args.nth(i + 1);
+					result.pairs.put(key, val);
+				}
+				return result;
+			}
+		});
+
+		ns.put("dissoc", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap source = (MalHashMap) args.nth(0);
+				MalHashMap result = malTypes.new MalHashMap(source.pairs);
+				for (Integer i = 1; i < args.items.size(); i++) {
+					MalType key = args.nth(i);
+					result.pairs.remove(key);
+				}
+				return result;
+			}
+		});
+
+		ns.put("get", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				if (!(args.nth(0) instanceof MalHashMap)) return types.MalNil;
+				MalHashMap source = (MalHashMap) args.nth(0);
+				MalType key = args.nth(1);
+				return source.pairs.getOrDefault(key, types.MalNil);
+			}
+		});
+
+		ns.put("contains?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap arg0 = (MalHashMap) args.nth(0);
+				MalType key = args.nth(1);
+				return (arg0.pairs.containsKey(key)) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("keys", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap arg0 = (MalHashMap) args.nth(0);
+				return malTypes.new MalList(arg0.pairs.keySet());
+			}
+		});
+
+		ns.put("vals", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalHashMap arg0 = (MalHashMap) args.nth(0);
+				return malTypes.new MalList(arg0.pairs.values());
 			}
 		});
 
