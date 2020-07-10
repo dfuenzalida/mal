@@ -323,25 +323,29 @@ public class core {
 
 		ns.put("apply", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
-				MalType fnOrFunctionTco = args.nth(0);
-				List<MalType> fnArgs = new ArrayList<>();
-				for (Integer i = 1; i < args.items.size() - 1; i++) {
-					fnArgs.add(args.nth(i));
-				}
-				MalType lastArg = args.items.get(args.items.size() - 1);
-				if (lastArg instanceof MalList) {
-					fnArgs.addAll(((MalList) lastArg).items);
-				} else {
-					fnArgs.add(lastArg);
-				}
+				try {
+					MalType fnOrFunctionTco = args.nth(0);
+					List<MalType> fnArgs = new ArrayList<>();
+					for (Integer i = 1; i < args.items.size() - 1; i++) {
+						fnArgs.add(args.nth(i));
+					}
+					MalType lastArg = args.items.get(args.items.size() - 1);
+					if (lastArg instanceof MalList) {
+						fnArgs.addAll(((MalList) lastArg).items);
+					} else {
+						fnArgs.add(lastArg);
+					}
 
-				MalFunction fn;
-				if (fnOrFunctionTco instanceof MalFunction) {
-					fn = (MalFunction) fnOrFunctionTco;
-				} else {
-					fn = ((FunctionTco) fnOrFunctionTco).fn;
+					MalFunction fn;
+					if (fnOrFunctionTco instanceof MalFunction) {
+						fn = (MalFunction) fnOrFunctionTco;
+					} else {
+						fn = ((FunctionTco) fnOrFunctionTco).fn;
+					}
+					return fn.apply(malTypes.new MalList(fnArgs));
+				} catch (Exception ex) {
+					throw malTypes.new MalException(malTypes.new MalString(ex.getMessage()));
 				}
-				return fn.apply(malTypes.new MalList(fnArgs));
 			}
 		});
 
