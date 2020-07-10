@@ -425,7 +425,7 @@ public class core {
 			}
 		});
 
-		ns.put("vector?", malTypes.new MalFunction() { // poor man's vector
+		ns.put("vector?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				boolean isVector = (arg0 instanceof MalList && ((MalList)arg0).open.equals("[") && ((MalList)arg0).close.equals("]"));
@@ -433,7 +433,7 @@ public class core {
 			}
 		});
 
-		ns.put("sequential?", malTypes.new MalFunction() { // poor man's vector
+		ns.put("sequential?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				boolean isSequential = false;
@@ -457,7 +457,7 @@ public class core {
 			}
 		});
 
-		ns.put("map?", malTypes.new MalFunction() { // poor man's vector
+		ns.put("map?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				return (arg0 instanceof MalHashMap) ? types.MalTrue : types.MalFalse;
@@ -517,6 +517,35 @@ public class core {
 			MalType apply(MalList args) {
 				MalHashMap arg0 = (MalHashMap) args.nth(0);
 				return malTypes.new MalList(arg0.pairs.values());
+			}
+		});
+
+		ns.put("readline", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalString arg0 = (MalString) args.nth(0);
+				String input = System.console().readLine(arg0.value);
+				return (input == null) ? types.MalNil : malTypes.new MalString(input);
+			}
+		});
+
+		ns.put("fn?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalFunction || arg0 instanceof FunctionTco) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("string?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalString) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("number?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof MalInteger) ? types.MalTrue : types.MalFalse;
 			}
 		});
 
