@@ -72,11 +72,11 @@ public class reader {
 				
 				// A single quote string is not valid
 				if (token.length() == 1) {
-					throw new RuntimeException("Single quote");
+					throw malTypes.new MalException(malTypes.new MalString("unbalanced quotes"));
 				}
 				
 				if (!(token.startsWith("\"") && token.endsWith("\""))) {
-					throw new RuntimeException("Unbalanced quotes");
+					throw malTypes.new MalException(malTypes.new MalString("unbalanced quotes"));
 				}
 
 				String unescaped = unescape(token.substring(1, token.length() - 1));
@@ -104,7 +104,7 @@ public class reader {
 		} else if ("false".equals(token)) {
 			return types.MalFalse;
 		} else if (token.startsWith(":")) {
-			if (token.length() < 2) throw new RuntimeException("Invalid keyword name");
+			if (token.length() < 2) throw malTypes.new MalException(malTypes.new MalString("Invalid keyword name"));
 			return malTypes.new MalKeyword(token.substring(1));
 		} else {
 			return malTypes.new MalSymbol(token);
@@ -130,33 +130,38 @@ public class reader {
 			}
 		}
 
-		if (escaping) throw new RuntimeException("Unfinished escape sequence");
+		if (escaping) throw malTypes.new MalException(malTypes.new MalString("Unexpected end of input"));
 		return builder.toString();
 	}
 
 	private static MalList read_list(reader myReader) {
-		String openToken = myReader.next();
-		String closeToken = ")";
-		switch (openToken) {
-			case "[":
-				closeToken = "]";
-				break;
-				
-			case "{":
-				closeToken = "}";
-				break;
-		}
-		
-		List<MalType> items = new ArrayList<>();
-		while (!closeToken.equals(myReader.peek())) {
-			items.add(read_form(myReader));
-		}
-		myReader.next(); // consume the closing token
+		try {
+			String openToken = myReader.next();
+			String closeToken = ")";
+			switch (openToken) {
+				case "[":
+					closeToken = "]";
+					break;
 
-		return malTypes.new MalList(items, openToken, closeToken);
+				case "{":
+					closeToken = "}";
+					break;
+			}
+
+			List<MalType> items = new ArrayList<>();
+			while (!closeToken.equals(myReader.peek())) {
+				items.add(read_form(myReader));
+			}
+			myReader.next(); // consume the closing token
+
+			return malTypes.new MalList(items, openToken, closeToken);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw malTypes.new MalException(malTypes.new MalString("EOF"));
+		}
 	}
 
-	private static MalList read_hashmap(reader myReader) {
+	private static MalType read_hashmap(reader myReader) {
 		myReader.next(); // drop the open bracket
 		String closeToken = "}";
 		List<MalType> items = new ArrayList<>();
@@ -168,6 +173,6 @@ public class reader {
 		MalSymbol hashmap = malTypes.new MalSymbol("hash-map");
 		MalList list = malTypes.new MalList(Arrays.asList(hashmap));
 		list.items.addAll(items);
-		return list;
+		return stepA_mal.eval(list, stepA_mal.repl_env);
 	}
 }
