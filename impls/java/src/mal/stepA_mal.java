@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import mal.types.FunctionTco;
 import mal.types.MalException;
 import mal.types.MalFunction;
+import mal.types.MalHashMap;
 import mal.types.MalList;
 import mal.types.MalSymbol;
 import mal.types.MalType;
@@ -168,11 +169,15 @@ public class stepA_mal {
 						}
 					} else {
 						// vector and pseudo-maps literals evaluate the contents with eval_ast and wrap in square/braces
-						MalList evaluated = (MalList) eval_ast(inputList, replEnv);
-						MalList result = malTypes.new MalList(evaluated.items);
-						result.open = inputList.open;
-						result.close = inputList.close;
-						return result;
+						if (inputList instanceof MalList) {
+							MalList evaluated = (MalList) eval_ast(inputList, replEnv);
+							MalList result = malTypes.new MalList(evaluated.items);
+							result.open = inputList.open;
+							result.close = inputList.close;
+							return result;
+						} else {
+							return ast;
+						}
 					}
 				}
 			}
@@ -311,6 +316,15 @@ public class stepA_mal {
 			MalList args = (MalList) ast;
 			List<MalType> evaluated = args.items.stream().map(arg -> eval(arg, replEnv)).collect(Collectors.toList());
 			return malTypes.new MalList(evaluated);
+		} else if (ast instanceof MalHashMap) {
+			MalHashMap malHashMap = (MalHashMap) ast;
+			MalHashMap result = malTypes.new MalHashMap(Collections.emptyMap());
+			for (MalType key: malHashMap.pairs.keySet()) {
+				MalType evalKey = eval(key, replEnv);
+				MalType evalVal = eval(malHashMap.pairs.get(key), replEnv);
+				result.pairs.put(evalKey, evalVal);
+			}
+			return result;
 		} else {
 			return ast;
 		}

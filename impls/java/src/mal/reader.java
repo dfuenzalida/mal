@@ -2,13 +2,14 @@ package mal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import mal.types.MalHashMap;
 import mal.types.MalList;
-import mal.types.MalSymbol;
 import mal.types.MalType;
 
 public class reader {
@@ -170,9 +171,13 @@ public class reader {
 		}
 		myReader.next(); // consume the closing token
 
-		MalSymbol hashmap = malTypes.new MalSymbol("hash-map");
-		MalList list = malTypes.new MalList(Arrays.asList(hashmap));
-		list.items.addAll(items);
-		return stepA_mal.eval(list, stepA_mal.repl_env);
+		// This gets actually eval'd in step_X#eval_ast
+		MalHashMap result = malTypes.new MalHashMap(Collections.emptyMap());
+		for (Integer i = 0; i < items.size() - 1; i += 2) {
+			MalType key = items.get(i);
+			MalType val = items.get(i+1);
+			result.pairs.put(key, val);
+		}
+		return result;
 	}
 }
