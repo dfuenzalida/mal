@@ -247,9 +247,7 @@ public class core {
 					retVal = fn.apply(fnArgsMalList);
 				} else {
 					FunctionTco funcTco = (FunctionTco) fnOrFunctionTco;
-					MalType ast = funcTco.ast;
-					env replEnv = new env(funcTco.functionEnv, funcTco.params, fnArgsMalList);
-					retVal = step6_file.eval(ast, replEnv);
+					retVal = funcTco.fn.apply(fnArgsMalList);
 				}
 				atom.value = retVal;
 				return retVal;
