@@ -33,7 +33,7 @@ public class env {
 			return this;
 		} else {
 			if (outer == null) {
-				throw malTypes.new MalException(malTypes.new MalString(String.format("'%s' not found", key)));
+				throw malTypes.new MalException(malTypes.new MalString(String.format("'%s' not found", key.name)));
 			} else {
 				return this.outer.find(key);
 			}
