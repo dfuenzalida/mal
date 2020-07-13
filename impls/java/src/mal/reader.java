@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import mal.types.MalHashMap;
 import mal.types.MalList;
@@ -151,7 +152,10 @@ public class reader {
 
 			List<MalType> items = new ArrayList<>();
 			while (!closeToken.equals(myReader.peek())) {
-				items.add(read_form(myReader));
+				MalType item = read_form(myReader);
+				if (item != types.MalComment) {
+					items.add(item);
+				}
 			}
 			myReader.next(); // consume the closing token
 
@@ -167,7 +171,10 @@ public class reader {
 		String closeToken = "}";
 		List<MalType> items = new ArrayList<>();
 		while (!closeToken.equals(myReader.peek())) {
-			items.add(read_form(myReader));
+			MalType item = read_form(myReader);
+			if (item != types.MalComment) {
+				items.add(item);
+			}
 		}
 		myReader.next(); // consume the closing token
 

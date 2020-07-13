@@ -34,8 +34,6 @@ public class stepA_mal {
 					return eval_ast(ast, replEnv);
 				}
 				MalList inputList = (MalList) ast;
-				// Remove the instances of MalComment
-				inputList = removeComments(inputList);
 				if (inputList.items.isEmpty()) {
 					return ast;
 				} else {
@@ -182,14 +180,6 @@ public class stepA_mal {
 				}
 			}
 		}
-	}
-
-	private static MalList removeComments(MalList inputList) {
-		List<MalType> actualItems = inputList.items.stream()
-				.filter(it -> it != types.MalComment)
-				.collect(Collectors.toList());
-		inputList.items = actualItems;
-		return inputList;
 	}
 
 	private static MalList[] bindArgs(MalList binds, MalList args) {
