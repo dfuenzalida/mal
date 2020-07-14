@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import mal.types.FunctionTco;
 import mal.types.MalException;
 import mal.types.MalFunction;
+import mal.types.MalHashMap;
 import mal.types.MalList;
 import mal.types.MalSymbol;
 import mal.types.MalType;
@@ -148,14 +149,13 @@ public class step9_try {
 							}
 						} else {
 							// inline function application case, eg. "((fn* () 1))"
-							if (firstUnevaluated instanceof MalList) {
-								MalList firstList = (MalList) firstUnevaluated;
-								MalType firstEvaluated = eval(firstList, replEnv);
-								List<MalType> updated = new ArrayList<>();
-								updated.add(firstEvaluated);
-								updated.addAll(inputList.items.subList(1, inputList.items.size()));
-								return eval(malTypes.new MalList(updated), replEnv);
-							} else if (firstUnevaluated instanceof FunctionTco) {
+							MalList firstList = (MalList) firstUnevaluated;
+							MalType firstEvaluated = eval(firstList, replEnv);
+							if (firstEvaluated instanceof MalFunction) {
+								MalFunction fn = (MalFunction) firstEvaluated;
+								MalList funcArgs = malTypes.new MalList(inputList.items.subList(1, inputList.items.size()));
+								return fn.apply(funcArgs);
+							} else if (firstEvaluated instanceof FunctionTco) {
 								FunctionTco funcTco = (FunctionTco) firstUnevaluated;
 								MalList funcArgs = malTypes.new MalList(inputList.items.subList(1, inputList.items.size()));
 								ast = funcTco.ast;
@@ -312,6 +312,15 @@ public class step9_try {
 			MalList args = (MalList) ast;
 			List<MalType> evaluated = args.items.stream().map(arg -> eval(arg, replEnv)).collect(Collectors.toList());
 			return malTypes.new MalList(evaluated);
+		} else if (ast instanceof MalHashMap) {
+			MalHashMap malHashMap = (MalHashMap) ast;
+			MalHashMap result = malTypes.new MalHashMap(Collections.emptyMap());
+			for (MalType key: malHashMap.pairs.keySet()) {
+				MalType evalKey = eval(key, replEnv);
+				MalType evalVal = eval(malHashMap.pairs.get(key), replEnv);
+				result.pairs.put(evalKey, evalVal);
+			}
+			return result;
 		} else {
 			return ast;
 		}
