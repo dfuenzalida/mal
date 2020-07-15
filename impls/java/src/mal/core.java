@@ -620,5 +620,29 @@ public class core {
 			}
 		});
 
+		ns.put("conj", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				try {
+					MalList coll = (MalList) args.nth(0);
+					if ("[".equals(coll.open)) { // add elements to the end
+						MalList result = malTypes.new MalList(coll.items);
+						result.items.addAll(args.items.subList(1, args.items.size()));
+						result.open = "[";
+						result.close = "]";
+						return result;
+					} else {
+						MalList result = malTypes.new MalList(Collections.emptyList());
+						for (int i = args.items.size() - 1; i >= 1; i--) {
+							result.items.add(args.nth(i));
+						}
+						result.items.addAll(coll.items);
+						return result;
+					}
+				} catch (Exception e) {
+					throw malTypes.new MalException(malTypes.new MalString("Error when conj'ing"));
+				}
+			}
+		});
+
 	};
 }

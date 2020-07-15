@@ -357,9 +357,6 @@ public class stepA_mal {
 		rp.rep("(defmacro! cond (fn* (& xs) (if (> (count xs) 0) (list 'if (first xs) (if (> (count xs) 1) (nth xs 1) (throw \"odd number of forms to cond\")) (cons 'cond (rest (rest xs)))))))");
 		rp.rep("(def! *host-language* \"java\")");
 
-		// Placeholders for how: time-ms, meta, with-meta, seq, and conj
-		rp.rep("(def! conj (fn* () (throw \"not implemented\")))");
-
 		// If there's command line arguments:
 		// - load the the args after the first as *ARGV*
 		List<String> quotedArgs = Collections.emptyList();
