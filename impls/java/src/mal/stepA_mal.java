@@ -358,9 +358,6 @@ public class stepA_mal {
 		rp.rep("(def! *host-language* \"java\")");
 
 		// Placeholders for how: time-ms, meta, with-meta, seq, and conj
-		rp.rep("(def! time-ms (fn* () (throw \"not implemented\")))");
-		rp.rep("(def! meta (fn* () (throw \"not implemented\")))");
-		rp.rep("(def! with-meta (fn* () (throw \"not implemented\")))");
 		rp.rep("(def! seq (fn* () (throw \"not implemented\")))");
 		rp.rep("(def! conj (fn* () (throw \"not implemented\")))");
 

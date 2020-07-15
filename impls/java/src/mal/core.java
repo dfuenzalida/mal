@@ -5,12 +5,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import mal.types.FunctionTco;
+import mal.types.IMeta;
 import mal.types.MalAtom;
 import mal.types.MalFunction;
 import mal.types.MalHashMap;
@@ -537,6 +539,19 @@ public class core {
 			}
 		});
 
+		ns.put("macro?", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				if (arg0 instanceof MalFunction) {
+					return ((MalFunction)arg0).is_macro ? types.MalTrue : types.MalFalse;
+				} else if (arg0 instanceof FunctionTco) {
+					return ((FunctionTco)arg0).is_macro ? types.MalTrue : types.MalFalse;
+				} else {
+					return types.MalFalse;
+				}
+			}
+		});
+
 		ns.put("string?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
@@ -548,6 +563,33 @@ public class core {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
 				return (arg0 instanceof MalInteger) ? types.MalTrue : types.MalFalse;
+			}
+		});
+
+		ns.put("time-ms", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				Long nowLong = new Date().getTime();
+				Integer nowInt = nowLong.intValue();
+				return malTypes.new MalInteger(nowInt);
+			}
+		});
+
+		ns.put("meta", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				return (arg0 instanceof IMeta) ? ((IMeta)arg0).getMeta() : types.MalNil;
+			}
+		});
+
+		ns.put("with-meta", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				if (arg0 instanceof IMeta) {
+					IMeta arg0IMeta = (IMeta) arg0;
+					MalType arg1 = args.nth(1);
+					arg0IMeta.setMeta(arg1);
+				}
+				return arg0;
 			}
 		});
 

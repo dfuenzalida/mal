@@ -18,6 +18,11 @@ public class types {
 		public String toString() {
 			return this.toString(true);
 		}
+	};
+
+	public interface IMeta {
+		public MalType getMeta();
+		public MalType setMeta(MalType meta);
 	}
 
 	public static MalType MalComment = new types().new MalType() {
@@ -44,10 +49,11 @@ public class types {
 		}
 	};
 
-	public class MalList extends MalType {
+	public class MalList extends MalType implements IMeta {
 		public List<MalType> items;
 		public String open;
 		public String close;
+		private MalType meta = types.MalNil;
 	
 		public MalList(Collection<MalType> items) {
 			this.items = new ArrayList<>(items);
@@ -85,6 +91,15 @@ public class types {
 
 		public int hashCode() {
 			return this.items.hashCode();
+		}
+
+		public MalType getMeta() {
+			return this.meta;
+		}
+
+		public MalType setMeta(MalType meta) {
+			this.meta = meta;
+			return this;
 		}
 	}
 	
@@ -197,8 +212,9 @@ public class types {
 	public static MalBoolean MalFalse = new types().new MalBoolean(false);
 
 
-	public abstract class MalFunction extends MalType {
+	public abstract class MalFunction extends MalType implements IMeta {
 		public boolean is_macro = false;
+		private MalType meta = types.MalNil;
 
 		abstract MalType apply(MalList args);
 
@@ -208,6 +224,15 @@ public class types {
 
 		public int hashCode() {
 			return 16384;
+		}
+
+		public MalType getMeta() {
+			return meta;
+		}
+
+		public MalType setMeta(MalType meta) {
+			this.meta = meta;
+			return this;
 		}
 	}
 
@@ -219,12 +244,13 @@ public class types {
 		}
 	}
 
-	public class FunctionTco extends MalType {
+	public class FunctionTco extends MalType implements IMeta {
 		public MalType ast;
 		public MalList params;
 		public env functionEnv;
 		public MalFunction fn;
 		public boolean is_macro = false;
+		private MalType meta = types.MalNil;
 
 		public FunctionTco(MalType ast, MalList params, env functionEnv, MalFunction fn) {
 			this.ast = ast;
@@ -239,6 +265,15 @@ public class types {
 
 		public int hashCode() {
 			return ast.hashCode() ^ params.hashCode() ^ fn.hashCode();
+		}
+
+		public MalType getMeta() {
+			return this.meta;
+		}
+
+		public MalType setMeta(MalType meta) {
+			this.meta = meta;
+			return this;
 		}
 	}
 
