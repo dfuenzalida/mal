@@ -535,7 +535,13 @@ public class core {
 		ns.put("fn?", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
-				return (arg0 instanceof MalFunction || arg0 instanceof FunctionTco) ? types.MalTrue : types.MalFalse;
+				if (arg0 instanceof MalFunction) {
+					return ((MalFunction)arg0).is_macro ? types.MalFalse : types.MalTrue;
+				} else if (arg0 instanceof FunctionTco) {
+					return ((FunctionTco)arg0).is_macro ? types.MalFalse : types.MalTrue;
+				} else {
+					return types.MalFalse;
+				}
 			}
 		});
 
