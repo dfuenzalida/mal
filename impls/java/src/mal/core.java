@@ -599,5 +599,26 @@ public class core {
 			}
 		});
 
+		ns.put("seq", malTypes.new MalFunction() {
+			MalType apply(MalList args) {
+				MalType arg0 = args.nth(0);
+				if (arg0 == types.MalNil) return arg0;
+				if (arg0 instanceof MalString) {
+					MalString arg0string = (MalString) arg0;
+					if (arg0string.value.length() == 0) return types.MalNil;
+					List<String> letters = Arrays.asList(arg0string.value.split(""));
+					List<MalType> items = letters.stream().map(l -> malTypes.new MalString(l)).collect(Collectors.toList());
+					MalType malLetters = malTypes.new MalList(items);
+					return malLetters;
+				} else if (arg0 instanceof MalList) {
+					MalList arg0List = (MalList) arg0;
+					if (arg0List.items.isEmpty()) return types.MalNil;
+					return malTypes.new MalList(arg0List.items);
+				} else {
+					throw malTypes.new MalException(malTypes.new MalString("invalid argument for seq"));
+				}
+			}
+		});
+
 	};
 }
