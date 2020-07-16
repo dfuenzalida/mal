@@ -168,7 +168,7 @@ xslt_TEST_OPTS = --test-timeout 120
 basic_STEP_TO_PROG_cbm          = impls/basic/$($(1)).bas
 basic_STEP_TO_PROG_qbasic       = impls/basic/$($(1))
 
-clojure_STEP_TO_PROG_clj        = impls/clojure/target/$($(1)).jar
+clojure_STEP_TO_PROG_clj        = impls/clojure/src/mal/$($(1)).clj # impls/clojure/target/$($(1)).jar
 clojure_STEP_TO_PROG_cljs       = impls/clojure/src/mal/$($(1)).cljc
 
 haxe_STEP_TO_PROG_neko          = impls/haxe/$($(1)).n
