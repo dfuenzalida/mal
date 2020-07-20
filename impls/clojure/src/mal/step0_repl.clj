@@ -1,4 +1,4 @@
-(ns step0-repl)
+(ns mal.step0_repl)
 
 (def READ identity)
 (def EVAL identity)
@@ -13,8 +13,9 @@
 
 ;; MAIN LOOP
 
-(loop [input (prompt)]
-  (when input
-    (println (rep input))
-    (recur (prompt))))
+(defn -main [& args]
+  (loop [input (prompt)]
+    (when input
+      (println (rep input))
+      (recur (prompt)))))
 

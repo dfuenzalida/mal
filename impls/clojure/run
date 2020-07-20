@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run
-exec clj src/mal/${STEP:-stepA_mal}.clj "${@}"
+exec clj -m mal.${STEP:-stepA_mal} "${@}"
 
 # Test with:
 # STEP=demo ./run
