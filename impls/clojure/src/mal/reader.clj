@@ -65,7 +65,7 @@
     (->> (subs s 1 (dec (count s))) unescape)
     (throw (ex-info "EOF" {}))))
 
-(def number-re #"[+-]\d+")
+(def number-re #"[+-]?\d+")
 
 (defn read_atom [rdr]
   (when-let [item (next rdr)]
@@ -81,13 +81,14 @@
       :else (symbol item))))
 
 (defn read_form [rdr]
-  (condp = (peek rdr)
+  (case (peek rdr)
     "(" (read_list rdr)
     "[" (read_vector rdr)
     "{" (read_hashmap rdr)
-    #_else (read_atom rdr)))
+    (read_atom rdr)))
 
 (defn read_str [s]
   (let [tokens (tokenize s)
         reader (make-reader tokens)]
     (read_form reader)))
+
