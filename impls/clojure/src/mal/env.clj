@@ -1,10 +1,15 @@
 (ns mal.env
   (:refer-clojure :exclude [find get set]))
 
-(defrecord Env [outer data])
+(declare set)
 
-(defn make-env [outer]
-  (Env. outer (atom {})))
+(defn make-env
+  ([outer] (make-env outer [] []))
+  ([outer binds exprs]
+   (let [newenv {:outer outer :data (atom {})}]
+     (doall
+      (map (partial set newenv) binds exprs))
+     newenv)))
 
 (defn set [this key val]
   (when-let [data (:data this)]
@@ -18,8 +23,8 @@
       (throw (ex-info (str "Env containing " key " not found") {})))))
 
 (defn get [this key]
-  (if-let [val (clojure.core/get @(:data this) key)]
-    val
+  (if (some #{key} (keys @(:data this)))
+    (clojure.core/get @(:data this) key)
     (if-let [outer (:outer this)]
       (get outer key)
       (throw (ex-info (str key " not found") {})))))

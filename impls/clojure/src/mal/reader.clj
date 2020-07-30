@@ -78,6 +78,7 @@
                      (list 'with-meta obj mtdt))
       (quote-tokens item) (list (quote-tokens item) (read_form rdr))
       (first (filter #{\"} item)) (read_string item)
+      (starts-with? item ":") (keyword (subs item 1))
       :else (symbol item))))
 
 (defn read_form [rdr]
