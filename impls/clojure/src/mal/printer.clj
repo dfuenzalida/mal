@@ -11,6 +11,7 @@
   ([x print_readably]
    (cond
      (nil? x) "nil"
+     (= (:type x) :tco) "#<function-tco>"
      (map? x) (let [ks (map #(pr_str % print_readably) (keys x))
                     vs (map #(pr_str % print_readably) (vals x))]
                 (->> (map str ks (repeat " ") vs)
