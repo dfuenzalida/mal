@@ -89,7 +89,7 @@
     (read_atom rdr)))
 
 (defn read_str [s]
-  (let [tokens (tokenize s)
+  (let [tokens (->> s tokenize (remove #(starts-with? % ";")))
         reader (make-reader tokens)]
     (read_form reader)))
 

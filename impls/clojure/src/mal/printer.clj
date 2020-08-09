@@ -31,4 +31,5 @@
      (number? x) (str x)
      (boolean? x) (if x "true" "false")
      (keyword? x) (str x)
+     (instance? clojure.lang.Atom x) (->> @x pr_str (format "(atom %s)"))
      (fn? x) "#<function>")))
