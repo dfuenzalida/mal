@@ -42,5 +42,7 @@
                   val  (apply f args)]
               (reset! atm val)))
 
-   'inc inc
+   ;; Step 7 - quote
+   'cons cons
+   'concat concat
    })
