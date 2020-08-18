@@ -45,4 +45,8 @@
    ;; Step 7 - quote
    'cons cons
    'concat concat
+   ;; Step 8 - macros
+   'nth nth
+   'first first
+   'rest rest
    })
