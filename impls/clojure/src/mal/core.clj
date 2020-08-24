@@ -49,4 +49,36 @@
    'nth nth
    'first first
    'rest rest
+   ;; Step 9 - try*/catch*
+   'throw (fn [val] (throw (ex-info nil {:cause val})))
+   'nil? nil?
+   'true? true?
+   'false? false?
+   'symbol? symbol?
+   'symbol symbol
+   'keyword keyword
+   'keyword? keyword?
+   'vector vector
+   'vector? vector?
+   'sequential? (fn [x] (or (seq? x) (vector? x)))
+   'hash-map hash-map
+   'map? map?
+   'assoc assoc
+   'dissoc dissoc
+   'get get
+   'contains? contains?
+   'keys (fn [m] (concat () (keys m)))
+   'vals (fn [m] (concat () (vals m)))
+
+   'apply (fn [f & xs]
+            (let [f'   (get f :fn f) ;; support both fn and tco
+                  args (butlast xs)
+                  lst  (let [lst (last xs)]
+                         (if (or (seq? lst) (vector? lst)) lst (list lst)))]
+              (apply f' (concat args lst))))
+
+   ;; will use seq . mapv otherwise an exception could be thrown too late
+   'map (fn [f xs & _]
+          (let [f' (get f :fn f)] ;; support both fn and tco
+            (seq (mapv f' xs))))
    })

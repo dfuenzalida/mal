@@ -20,12 +20,12 @@
     this
     (if-let [outer (:outer this)]
       (find outer key)
-      (throw (ex-info (str "Env containing " key " not found") {})))))
+      (throw (ex-info "" {:cause (str "Env containing " key " not found")})))))
 
 (defn get [this key]
   (if (some #{key} (keys @(:data this)))
     (clojure.core/get @(:data this) key)
     (if-let [outer (:outer this)]
       (get outer key)
-      (throw (ex-info (str key " not found") {})))))
+      (throw (ex-info "" {:cause (format "'%s' not found" key)})))))
 
