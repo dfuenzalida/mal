@@ -81,4 +81,19 @@
    'map (fn [f xs & _]
           (let [f' (get f :fn f)] ;; support both fn and tco
             (seq (mapv f' xs))))
+
+   ;; Step A - mal
+   'readline (fn [s] (print s) (flush) (read-line))
+   'time-ms (fn [] (.getTime (java.util.Date.)))
+   'meta (comp :metaval meta)
+   'with-meta (fn [val metaval] (with-meta val {:metaval metaval}))
+
+   'fn? (fn [f]
+          (and (fn? (get f :fn f)) ;; function or tco
+               (not (get f :is_macro false)))) ;; not a macro
+
+   'string? string?
+   'number? number?
+   'seq (fn [x] (if (string? x) (seq (map str x)) (seq x)))
+   'conj conj
    })
