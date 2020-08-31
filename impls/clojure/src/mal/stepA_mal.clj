@@ -81,12 +81,12 @@
                         (recur (last xs) envi))
               'if   (let [[test then else] xs]
                       (if (EVAL test envi) (recur then envi) (recur else envi)))
-              'fn*  (let [[binds body] xs
+              'fn*  (let [[binds & forms] xs
                           func (fn [& args] ;; TODO validate number of args over binds
                                  (let [[bs' as'] (rebind binds args)
                                        newenv    (env/make-env envi bs' as')]
-                                   (EVAL body newenv)))]
-                      {:ast body :params binds :env envi :fn func :type :tco})
+                                   (last (map #(EVAL % newenv) forms))))]
+                      {:ast (concat '(do) forms) :params binds :env envi :fn func :type :tco})
               'quote (first xs)
               'quasiquote (recur (quasiquote (first xs)) envi)
               'macroexpand (macroexpand (first xs) envi)
