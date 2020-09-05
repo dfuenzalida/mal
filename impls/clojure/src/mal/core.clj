@@ -75,7 +75,9 @@
                   args (butlast xs)
                   lst  (let [lst (last xs)]
                          (if (or (seq? lst) (vector? lst)) lst (list lst)))]
-              (apply f' (concat args lst))))
+              (if (= [nil] xs)
+                (f)
+                (apply f' (concat args lst)))))
 
    ;; will use seq . mapv otherwise an exception could be thrown too late
    'map (fn [f xs & _]
