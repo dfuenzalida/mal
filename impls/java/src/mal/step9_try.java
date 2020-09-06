@@ -119,14 +119,20 @@ public class step9_try {
 								try {
 									MalType tryResult = eval(tryExpr, replEnv);
 									return tryResult;
-								} catch (MalException mex) {
-									MalType cause = mex.value;
-									if (inputList.items.size() < 3) throw mex; // if catch* is missing
+								} catch (Exception ex) {
+									if (inputList.items.size() < 3) throw ex; // if catch* is missing
 									MalList catchBlock = (MalList) inputList.nth(2);
 									// TODO check that catchBlock.nth(0) is the MalSymbol "catch*"
 									MalSymbol exName = (MalSymbol) catchBlock.nth(1);
 									MalType catchExpr = catchBlock.nth(2);
 									env newEnv = new env(replEnv, null, null);
+									MalType cause;
+									if (ex instanceof MalException) {
+										MalException mex = (MalException) ex;
+										cause = mex.value;
+									} else {
+										cause = malTypes.new MalString(ex.getMessage());
+									}
 									newEnv.set(exName, cause);
 									return eval(catchExpr, newEnv);
 								}

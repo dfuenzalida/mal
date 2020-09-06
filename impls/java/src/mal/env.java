@@ -33,7 +33,7 @@ public class env {
 			return this;
 		} else {
 			if (outer == null) {
-				throw malTypes.new MalException(malTypes.new MalString(String.format("'%s' not found", key.name)));
+				throw malTypes.new RepException(String.format("'%s' not found", key.name));
 			} else {
 				return this.outer.find(key);
 			}
@@ -43,7 +43,7 @@ public class env {
 	public MalType get(MalSymbol key) {
 		env env = this.find(key);
 		if (env == null) {
-			throw malTypes.new MalException(malTypes.new MalString(String.format("'%s' not found", key)));
+			throw malTypes.new RepException(String.format("'%s' not found", key));
 		} else {
 			return env.data.get(key);
 		}

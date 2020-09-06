@@ -1,10 +1,12 @@
 package mal;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import mal.types.MalFunction;
+import mal.types.MalHashMap;
 import mal.types.MalInteger;
 import mal.types.MalList;
 import mal.types.MalSymbol;
@@ -78,6 +80,15 @@ public class step2_eval {
 			MalList args = (MalList) ast;
 			List<MalType> evaluated = args.items.stream().map(arg -> eval(arg, env)).collect(Collectors.toList());
 			return malTypes.new MalList(evaluated);
+		} else if (ast instanceof MalHashMap) {
+			MalHashMap malHashMap = (MalHashMap) ast;
+			MalHashMap result = malTypes.new MalHashMap(Collections.emptyMap());
+			for (MalType key: malHashMap.pairs.keySet()) {
+				MalType evalKey = eval(key, env);
+				MalType evalVal = eval(malHashMap.pairs.get(key), env);
+				result.pairs.put(evalKey, evalVal);
+			}
+			return result;
 		} else {
 			return ast;
 		}
