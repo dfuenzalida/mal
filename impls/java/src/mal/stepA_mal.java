@@ -50,10 +50,11 @@ public class stepA_mal {
 							} else if (firstSymbol.name.equals("defmacro!")) {
 								MalSymbol key = (MalSymbol) inputList.nth(1);
 								MalType value = inputList.nth(2);
-								FunctionTco macro = (FunctionTco) eval(value, replEnv);
+								FunctionTco fnTco = (FunctionTco) eval(value, replEnv);
+								FunctionTco macro = malTypes.new FunctionTco(fnTco.ast, fnTco.params, fnTco.functionEnv, fnTco.fn);
 								macro.is_macro = true;
 								replEnv.set(key, macro);
-								return macro;
+								return fnTco;
 							} else if (firstSymbol.name.equals("let*")) {
 								// Create new env
 								env newEnv = new env(replEnv, null, null);
@@ -117,14 +118,20 @@ public class stepA_mal {
 								try {
 									MalType tryResult = eval(tryExpr, replEnv);
 									return tryResult;
-								} catch (MalException mex) {
-									MalType cause = mex.value;
-									if (inputList.items.size() < 3) throw mex; // if catch* is missing
+								} catch (Exception ex) {
+									if (inputList.items.size() < 3) throw ex; // if catch* is missing
 									MalList catchBlock = (MalList) inputList.nth(2);
 									// TODO check that catchBlock.nth(0) is the MalSymbol "catch*"
 									MalSymbol exName = (MalSymbol) catchBlock.nth(1);
 									MalType catchExpr = catchBlock.nth(2);
 									env newEnv = new env(replEnv, null, null);
+									MalType cause;
+									if (ex instanceof MalException) {
+										MalException mex = (MalException) ex;
+										cause = mex.value;
+									} else {
+										cause = malTypes.new MalString(ex.getMessage());
+									}
 									newEnv.set(exName, cause);
 									return eval(catchExpr, newEnv);
 								}

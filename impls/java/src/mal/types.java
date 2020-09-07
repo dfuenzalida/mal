@@ -305,7 +305,8 @@ public class types {
 		}
 	}
 
-	public class MalHashMap extends MalType {
+	public class MalHashMap extends MalType implements IMeta {
+		private MalType meta = types.MalNil;
 		public HashMap<MalType, MalType> pairs = new HashMap<>();
 
 		public MalHashMap(Map<MalType, MalType> kvs) {
@@ -334,6 +335,15 @@ public class types {
 
 		public int hashCode() {
 			return pairs.hashCode();
+		}
+
+		public MalType getMeta() {
+			return meta;
+		}
+
+		public MalType setMeta(MalType meta) {
+			this.meta = meta;
+			return this;
 		}
 	}
 }

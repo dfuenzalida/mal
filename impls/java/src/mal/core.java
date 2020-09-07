@@ -590,12 +590,40 @@ public class core {
 		ns.put("with-meta", malTypes.new MalFunction() {
 			MalType apply(MalList args) {
 				MalType arg0 = args.nth(0);
-				if (arg0 instanceof IMeta) {
-					IMeta arg0IMeta = (IMeta) arg0;
-					MalType arg1 = args.nth(1);
-					arg0IMeta.setMeta(arg1);
+				MalType metaValue = args.nth(1);
+				if (arg0 instanceof MalFunction) {
+					MalFunction arg0Fn = (MalFunction) arg0;
+					return malTypes.new MalFunction() {
+
+						@Override
+						MalType apply(MalList args) {
+							return arg0Fn.apply(args);
+						}
+
+						public MalType getMeta() {
+							return metaValue;
+						};
+					};
+				} else if (arg0 instanceof FunctionTco) {
+					FunctionTco arg0Fn = (FunctionTco) arg0;
+					return malTypes.new FunctionTco(arg0Fn.ast, arg0Fn.params, arg0Fn.functionEnv, arg0Fn.fn) {
+						public MalType getMeta() {
+							return metaValue;
+						};
+					};
+				} else if (arg0 instanceof MalList) {
+					MalList arg0List = (MalList) arg0;
+					MalList newList = malTypes.new MalList(arg0List.items, arg0List.open, arg0List.close);
+					newList.setMeta(metaValue);
+					return newList;
+				} else if (arg0 instanceof MalHashMap) {
+					MalHashMap arg0Map = (MalHashMap) arg0;
+					MalHashMap newMap = malTypes.new MalHashMap(arg0Map.pairs);
+					newMap.setMeta(metaValue);
+					return newMap;
+				} else {
+					return arg0;
 				}
-				return arg0;
 			}
 		});
 
