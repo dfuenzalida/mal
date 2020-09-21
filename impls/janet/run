@@ -1,0 +1,3 @@
+#!/bin/bash
+
+janet ${STEP:-stepA_mal}.janet "${@}"
