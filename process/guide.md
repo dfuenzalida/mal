@@ -1648,8 +1648,8 @@ implementation.
   * `meta`: this takes a single mal function argument and returns the
     value of the metadata attribute.
   * `with-meta`: this function takes two arguments. The first argument
-    is a mal function and the second argument is another mal
-    value/type to set as metadata. A copy of the mal function is
+    is a mal value and the second argument is another mal
+    value/type to set as metadata. A copy of the mal type is
     returned that has its `meta` attribute set to the second argument.
     Note that it is important that the environment and macro attribute
     of mal function are retained when it is copied.
